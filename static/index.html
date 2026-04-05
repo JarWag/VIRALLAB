@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#07090f">
+<title>ViralLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07090f;--s1:#0d1018;--s2:#12151f;--s3:#1a1f2e;--border:#1f2535;--border2:#2a3347;--red:#ff3a3a;--orange:#ff6b35;--gold:#ffc23e;--blue:#4a9eff;--green:#3ecf8e;--purple:#a78bfa;--tiktok:#ff2d55;--text:#e4eaf5;--muted:#5a6680;--muted2:#8a97b0;--radius:14px;--rsm:10px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(255,58,58,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+.wrap{max-width:640px;margin:0 auto;padding:24px 16px 120px;position:relative;z-index:1}
+/* HEADER */
+.hdr{margin-bottom:20px;animation:up .4s ease both}
+.hdr-top{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#ff3a3a,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.logo-text em{font-style:normal;background:linear-gradient(90deg,#ff3a3a,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdr-sub{font-size:13px;color:var(--muted2);font-weight:300;margin-left:52px;line-height:1.4}
+/* SWITCHER */
+.psw{display:flex;gap:6px;margin-bottom:16px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:5px}
+.psw-btn{flex:1;padding:10px 8px;border:none;border-radius:9px;background:transparent;color:var(--muted2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-appearance:none}
+.psw-btn.active{background:var(--s2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.psw-icon{font-size:16px}
+.psw-btn span{display:none}
+@media(min-width:380px){.psw-btn span{display:inline}}
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;animation:up .4s ease both}
+.clabel{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--red);margin-bottom:14px}
+/* FORM */
+.fg{margin-bottom:12px}
+.fg:last-child{margin-bottom:0}
+.fg label{display:block;font-size:12px;color:var(--muted2);margin-bottom:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g2 .fg{margin-bottom:0}
+input[type=text],input[type=password],select{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:13px 15px;outline:none;width:100%;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+input::placeholder{color:var(--muted);font-size:14px}
+input:focus,select:focus{border-color:rgba(255,58,58,.5);box-shadow:0 0 0 3px rgba(255,58,58,.08)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%235a6680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-color:var(--s2);padding-right:36px;cursor:pointer}
+select option{background:#12151f}
+.irow{display:flex;gap:8px}
+.irow input{flex:1}
+.ibtn{flex-shrink:0;padding:13px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--muted2);font-size:14px;cursor:pointer;-webkit-appearance:none;transition:background .15s}
+.ibtn:active{background:var(--s3)}
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border:none;border-radius:var(--rsm);cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.3px;transition:all .15s;-webkit-appearance:none}
+.btn-primary{background:linear-gradient(135deg,var(--red),var(--orange));color:#fff}
+.btn-tiktok{background:linear-gradient(135deg,#ff2d55,#ff6b9d);color:#fff}
+.btn-primary:active,.btn-tiktok:active{opacity:.85;transform:scale(.98)}
+.btn-primary:disabled,.btn-tiktok:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-ghost{background:var(--s3);border:1px solid var(--border2);color:var(--muted2);font-family:'DM Sans',sans-serif;font-weight:500}
+.btn-ghost:active{opacity:.8}
+.btn-sm{padding:10px 16px;width:auto;font-size:13px;border-radius:8px}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;flex-shrink:0}
+.loading .spinner{display:block}
+.loading .btn-txt{opacity:.7}
+/* VIDEO GRID */
+.vgrid{display:flex;flex-direction:column;gap:10px}
+.vcard{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);overflow:hidden;cursor:pointer;transition:border-color .2s;display:flex;flex-direction:column}
+.vcard.selected{border-color:var(--red);background:rgba(255,58,58,.04)}
+.vcard.tt-selected{border-color:var(--tiktok);background:rgba(255,45,85,.04)}
+.vthumb{position:relative;width:100%;aspect-ratio:16/9;background:var(--s3);overflow:hidden}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.vdur{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.85);color:#fff;font-size:10px;padding:2px 5px;border-radius:4px}
+.vbadge{position:absolute;top:6px;left:6px;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:'Syne',sans-serif}
+.vbadge-yt{background:linear-gradient(135deg,var(--red),var(--orange))}
+.vbadge-tt{background:linear-gradient(135deg,#ff2d55,#ff6b9d)}
+.vbody{padding:11px 13px;display:flex;flex-direction:column;gap:5px}
+.vtitle{font-size:13px;font-weight:500;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vchan{font-size:11px;color:var(--muted2)}
+.vstats{display:flex;gap:10px}
+.vstat{font-size:11px;color:var(--muted2)}
+.vsel{margin:0 13px 13px;padding:9px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--muted2);font-size:12px;cursor:pointer;transition:all .15s;text-align:center;font-family:'DM Sans',sans-serif}
+.vcard.selected .vsel{background:var(--red);border-color:var(--red);color:#fff}
+.vcard.tt-selected .vsel{background:var(--tiktok);border-color:var(--tiktok);color:#fff}
+/* STATUS */
+.ts{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--rsm);font-size:13px;line-height:1.5;margin-bottom:10px}
+.ts-ok{background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.2);color:var(--green)}
+.ts-warn{background:rgba(255,194,62,.07);border:1px solid rgba(255,194,62,.2);color:var(--gold)}
+.ts-load{background:var(--s2);border:1px solid var(--border);color:var(--muted2)}
+.ts-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+/* INFO BOX */
+.ibox{background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.2);border-radius:var(--rsm);padding:12px 14px;font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:12px}
+.ibox strong{color:var(--text)}
+.ibox a{color:var(--blue);text-decoration:none}
+/* SCRIPT SECTION */
+#scriptSection{display:none}
+.alist{display:flex;flex-direction:column;gap:8px}
+.aitem{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:12px 14px}
+.aitem-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-family:'Syne',sans-serif;margin-bottom:5px}
+.aitem-t{font-size:13px;color:var(--muted2);line-height:1.5}
+.vsel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.vtab{padding:10px 6px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--muted2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .2s;text-align:center;-webkit-appearance:none}
+.vtab .vtn{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;display:block;margin-bottom:2px}
+.vtab .vtd{font-size:10px;color:var(--muted);display:block;line-height:1.3}
+.vtab.active{border-color:var(--red);background:rgba(255,58,58,.08);color:var(--text)}
+.vcwrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.vch{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vchs{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:2px}
+.vchd{font-size:12px;color:var(--muted2);font-weight:300}
+.vcb{padding:16px;display:flex;flex-direction:column;gap:16px}
+.vcs-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-family:'Syne',sans-serif;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.vcs-l::after{content:'';flex:1;height:1px;background:var(--border)}
+.hook-box{background:linear-gradient(135deg,rgba(255,194,62,.07),rgba(255,107,53,.04));border:1px solid rgba(255,194,62,.2);border-radius:var(--rsm);padding:14px;font-size:15px;font-weight:500;line-height:1.5;color:var(--gold)}
+.cta-box{background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.2);border-radius:var(--rsm);padding:12px 14px;font-size:13px;color:var(--green);font-weight:500;line-height:1.5}
+.script-text{font-size:13px;line-height:1.85;color:#b8c4d8;white-space:pre-wrap;font-weight:300}
+.plist{display:flex;flex-direction:column;gap:10px}
+.pcard{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.pch{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pchn{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.rec{font-size:10px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:var(--purple);padding:2px 7px;border-radius:20px}
+.pcb{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.pct{font-size:14px;font-weight:600;line-height:1.4}
+.phook{font-size:13px;color:var(--gold);font-style:italic;padding:10px 13px;background:rgba(255,194,62,.05);border-radius:8px;border-left:2px solid rgba(255,194,62,.3);line-height:1.5}
+.phook::before{content:'🎣 ';font-style:normal}
+.pcta{font-size:13px;color:var(--green);line-height:1.4}
+.pcta::before{content:'📣 '}
+.ptags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{padding:4px 9px;border-radius:20px;font-size:11px;background:var(--s3);border:1px solid var(--border2);color:var(--muted2)}
+.tag.hot{color:var(--red);border-color:rgba(255,58,58,.3);background:rgba(255,58,58,.07)}
+.pprev{font-size:13px;color:var(--muted2);line-height:1.6;max-height:80px;overflow:hidden;mask-image:linear-gradient(to bottom,black 40%,transparent)}
+/* ALERT */
+.alert{border-radius:var(--rsm);padding:12px 14px;font-size:13px;margin-top:10px;display:none;line-height:1.5}
+.alert-err{background:rgba(255,58,58,.08);border:1px solid rgba(255,58,58,.25);color:#ff8080}
+/* STICKY */
+.sticky{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:100;display:none}
+.sticky.show{display:block}
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:999;background:var(--green);color:#07090f;font-weight:600;font-size:13px;padding:10px 20px;border-radius:30px;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(min-width:600px){.wrap{padding:36px 24px 120px}.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.plist{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
+@media(min-width:900px){.vgrid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">🔥</div>
+    <div class="logo-text">Viral<em>Lab</em></div>
+  </div>
+  <div class="hdr-sub">Viralowy skrypt po polsku — YouTube i TikTok</div>
+</div>
+
+<div class="psw">
+  <button class="psw-btn active" id="psw-yt" onclick="switchP('youtube')">
+    <span class="psw-icon">▶️</span><span>YouTube</span>
+  </button>
+  <button class="psw-btn" id="psw-tt" onclick="switchP('tiktok')">
+    <span class="psw-icon">🎵</span><span>TikTok</span>
+  </button>
+</div>
+
+<!-- ═══ YOUTUBE ═══ -->
+<div id="panel-yt">
+  <div class="card">
+    <div class="clabel">🔍 Wyszukiwanie YouTube</div>
+    <div class="fg"><label>Hasło lub #tag</label>
+      <input type="text" id="ytQ" placeholder="np. how to save money" onkeydown="if(event.key==='Enter')ytSearch()">
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Język źródłowy</label>
+        <select id="ytLang"><option value="en">🇺🇸 Angielski</option><option value="de">🇩🇪 Niemiecki</option><option value="es">🇪🇸 Hiszpański</option><option value="fr">🇫🇷 Francuski</option><option value="it">🇮🇹 Włoski</option></select>
+      </div>
+      <div class="fg"><label>Nisza (PL)</label>
+        <select id="ytNiche"><option value="ogólna">Ogólna</option><option value="finanse osobiste">💰 Finanse</option><option value="zdrowie i fitness">🏃 Fitness</option><option value="jedzenie i gotowanie">🍕 Jedzenie</option><option value="biznes i przedsiębiorczość">📈 Biznes</option><option value="technologia i AI">💻 Tech/AI</option><option value="podróże">✈️ Podróże</option><option value="edukacja">📚 Edukacja</option><option value="motoryzacja">🚗 Moto</option></select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Sortuj</label>
+        <select id="ytSort"><option value="viewCount">Wyświetlenia ↓</option><option value="relevance" selected>Trafność</option><option value="date">Najnowsze</option></select>
+      </div>
+      <div class="fg"><label>Wyników</label>
+        <select id="ytMax"><option value="6">6</option><option value="9" selected>9</option><option value="12">12</option></select>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="ytSearchBtn" onclick="ytSearch()" style="margin-top:4px">
+      <div class="spinner"></div><span class="btn-txt">🔍 Szukaj filmów</span>
+    </button>
+    <div class="alert alert-err" id="ytErr"></div>
+  </div>
+  <div id="ytResults" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">📊 Wyniki</div>
+      <div style="font-size:12px;color:var(--muted2)" id="ytMeta"></div>
+    </div>
+    <div class="vgrid" id="ytGrid"></div>
+    <div id="ytTsStatus" style="display:none;margin-top:12px"></div>
+    <div class="alert alert-err" id="ytGenErr"></div>
+  </div>
+</div>
+
+<!-- ═══ TIKTOK ═══ -->
+<div id="panel-tt" style="display:none">
+  <div class="card">
+    <div class="clabel">🎵 Wyszukiwanie TikTok</div>
+    <div class="ibox">
+      <strong>Wyszukiwarka TikTok przez Apify</strong> — darmowe konto na <a href="https://apify.com" target="_blank">apify.com</a> daje $5 kredytów miesięcznie (ok. 500 wyszukiwań). Token wpisz w pliku <strong>.env</strong> jako <code style="background:var(--s3);padding:1px 4px;border-radius:4px">APIFY_TOKEN=apify_api_...</code>
+    </div>
+    <div class="fg"><label>Hasło lub #tag</label>
+      <input type="text" id="ttQ" placeholder="np. saving money lub #productivity" onkeydown="if(event.key==='Enter')ttSearch()">
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Nisza (PL)</label>
+        <select id="ttNiche"><option value="ogólna">Ogólna</option><option value="finanse osobiste">💰 Finanse</option><option value="zdrowie i fitness">🏃 Fitness</option><option value="jedzenie i gotowanie">🍕 Jedzenie</option><option value="biznes i przedsiębiorczość">📈 Biznes</option><option value="technologia i AI">💻 Tech/AI</option><option value="podróże">✈️ Podróże</option><option value="edukacja">📚 Edukacja</option><option value="motoryzacja">🚗 Moto</option></select>
+      </div>
+      <div class="fg"><label>Wyników</label>
+        <select id="ttMax"><option value="6">6</option><option value="9" selected>9</option><option value="12">12</option></select>
+      </div>
+    </div>
+    <button class="btn btn-tiktok" id="ttSearchBtn" onclick="ttSearch()" style="margin-top:4px">
+      <div class="spinner"></div><span class="btn-txt">🎵 Szukaj na TikToku</span>
+    </button>
+    <div class="alert alert-err" id="ttErr"></div>
+  </div>
+  <div id="ttResults" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">🎵 Wyniki TikTok</div>
+      <div style="font-size:12px;color:var(--muted2)" id="ttMeta"></div>
+    </div>
+    <div class="vgrid" id="ttGrid"></div>
+    <div id="ttSelStatus" style="display:none;margin-top:12px"></div>
+    <div class="alert alert-err" id="ttGenErr"></div>
+  </div>
+</div>
+
+<!-- ═══ SCRIPT (wspólny) ═══ -->
+<div id="scriptSection">
+  <div class="card">
+    <div class="clabel">🔬 Analiza wiralności</div>
+    <div class="alist" id="agrid"></div>
+  </div>
+  <div class="card">
+    <div class="clabel">📜 3 warianty skryptu</div>
+    <div class="vsel-grid" id="vtabs"></div>
+    <div id="vcont"></div>
+  </div>
+  <div class="card">
+    <div class="clabel">📱 Wersje na platformy</div>
+    <div class="plist" id="pgrid"></div>
+  </div>
+</div>
+</div>
+
+<!-- STICKY -->
+<div class="sticky" id="stickyGen">
+  <button class="btn btn-primary" id="genBtn" onclick="generateScript()" disabled>
+    <div class="spinner"></div><span class="btn-txt">🇵🇱 Generuj 3 warianty skryptu</span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API="http://localhost:5000";
+let selVideo=null,transcript="",gdata={},activeV=1,curP="youtube";
+const C={1:'var(--red)',2:'var(--blue)',3:'var(--orange)'};
+
+const fN=n=>{n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'mld';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
+const fD=iso=>{if(!iso)return'';const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);if(!m)return'';const h=parseInt(m[1]||0),mn=parseInt(m[2]||0),s=parseInt(m[3]||0);return h?`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${mn}:${String(s).padStart(2,'0')}`};
+const showErr=(id,msg)=>{const e=document.getElementById(id);e.textContent=msg;e.style.display='block'};
+const hideErr=id=>document.getElementById(id).style.display='none';
+const toast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)};
+const setLoad=(id,on)=>{const b=document.getElementById(id);b.disabled=on;on?b.classList.add('loading'):b.classList.remove('loading')};
+const setStatus=(id,type,msg)=>{const el=document.getElementById(id);el.style.display='flex';el.className='ts ts-'+type;const ic={ok:'✅',warn:'⚠️',load:'⏳'};el.innerHTML=`<span class="ts-icon">${ic[type]||''}</span><span>${msg}</span>`};
+function toggleKey(id,btn){const e=document.getElementById(id);if(e.type==='password'){e.type='text';btn.textContent='🙈';}else{e.type='password';btn.textContent='👁';}}
+
+function switchP(p){
+  curP=p;
+  document.getElementById('panel-yt').style.display=p==='youtube'?'block':'none';
+  document.getElementById('panel-tt').style.display=p==='tiktok'?'block':'none';
+  document.getElementById('scriptSection').style.display='none';
+  document.getElementById('stickyGen').classList.remove('show');
+  document.getElementById('psw-yt').classList.toggle('active',p==='youtube');
+  document.getElementById('psw-tt').classList.toggle('active',p==='tiktok');
+  selVideo=null;transcript="";
+}
+
+// ═══ YOUTUBE ═══
+async function ytSearch(){
+  const q=document.getElementById('ytQ').value.trim();
+  if(!q){showErr('ytErr','⚠️ Wpisz hasło');return}
+  hideErr('ytErr');setLoad('ytSearchBtn',true);
+  selVideo=null;transcript="";
+  document.getElementById('genBtn').disabled=true;
+  document.getElementById('ytTsStatus').style.display='none';
+  document.getElementById('ytResults').style.display='none';
+  document.getElementById('scriptSection').style.display='none';
+  document.getElementById('stickyGen').classList.remove('show');
+
+  try{
+    const p=new URLSearchParams({q,order:document.getElementById('ytSort').value,lang:document.getElementById('ytLang').value,maxResults:document.getElementById('ytMax').value});
+    const r=await fetch(`${API}/api/youtube/search?${p}`);
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    renderVids('yt',d.videos);
+  }catch(e){showErr('ytErr','❌ '+e.message)}
+  finally{setLoad('ytSearchBtn',false)}
+}
+
+async function ytSelVid(i){
+  document.querySelectorAll('#ytGrid .vcard').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('#ytGrid .vsel').forEach(b=>b.textContent='Wybierz →');
+  document.getElementById('ytCard'+i).classList.add('selected');
+  document.getElementById('ytSel'+i).textContent='✓ Wybrany';
+  selVideo=window._ytVids[i];transcript="";
+  document.getElementById('genBtn').disabled=true;
+  document.getElementById('scriptSection').style.display='none';
+  document.getElementById('stickyGen').classList.remove('show');
+  setStatus('ytTsStatus','load','Pobieram transkrypt...');
+
+  try{
+    const r=await fetch(`${API}/api/youtube/transcript?video_id=${selVideo.id}&lang=${document.getElementById('ytLang').value}`);
+    const d=await r.json();
+    if(d.error){setStatus('ytTsStatus','warn','Brak transkryptu — skrypt na podstawie opisu.');}
+    else{setStatus('ytTsStatus','ok',`Transkrypt pobrany (${d.is_generated?'auto':'ręczne'}, ${d.length} znaków) ✓`);transcript=d.transcript;}
+  }catch(e){setStatus('ytTsStatus','warn','Nie udało się pobrać transkryptu.');}
+
+  document.getElementById('genBtn').disabled=false;
+  document.getElementById('stickyGen').classList.add('show');
+}
+
+// ═══ TIKTOK ═══
+async function ttSearch(){
+  const q=document.getElementById('ttQ').value.trim();
+  const key='';
+  if(!q){showErr('ttErr','⚠️ Wpisz hasło lub #tag');return}
+  hideErr('ttErr');setLoad('ttSearchBtn',true);
+  selVideo=null;transcript="";
+  document.getElementById('genBtn').disabled=true;
+  document.getElementById('ttResults').style.display='none';
+  document.getElementById('scriptSection').style.display='none';
+  document.getElementById('stickyGen').classList.remove('show');
+
+  try{
+    showErr('ttErr','');
+    document.getElementById('ttErr').style.display='none';
+    // Show loading info — Apify takes 10-30 sec
+    const loadInfo=document.createElement('div');
+    loadInfo.id='apifyLoad';
+    loadInfo.className='ts ts-load';
+    loadInfo.innerHTML='<span class="ts-icon">⏳</span><span>Szukam przez Apify — może potrwać 10–30 sekund...</span>';
+    document.getElementById('panel-tt').appendChild(loadInfo);
+
+    const p=new URLSearchParams({q,maxResults:document.getElementById('ttMax').value});
+    const r=await fetch(`${API}/api/tiktok/apify-search?${p}`);
+    const d=await r.json();
+    document.getElementById('apifyLoad')?.remove();
+    if(d.error)throw new Error(d.error);
+    renderVids('tt',d.videos);
+  }catch(e){document.getElementById('apifyLoad')?.remove();showErr('ttErr','❌ '+e.message)}
+  finally{setLoad('ttSearchBtn',false)}
+}
+
+function ttSelVid(i){
+  document.querySelectorAll('#ttGrid .vcard').forEach(c=>c.classList.remove('tt-selected'));
+  document.querySelectorAll('#ttGrid .vsel').forEach(b=>b.textContent='Wybierz →');
+  document.getElementById('ttCard'+i).classList.add('tt-selected');
+  document.getElementById('ttSel'+i).textContent='✓ Wybrany';
+  selVideo=window._ttVids[i];transcript="";
+  setStatus('ttSelStatus','ok','Film wybrany — kliknij przycisk na dole żeby wygenerować skrypt.');
+  document.getElementById('genBtn').disabled=false;
+  document.getElementById('stickyGen').classList.add('show');
+  document.getElementById('scriptSection').style.display='none';
+}
+
+// ═══ RENDER VIDEOS ═══
+function renderVids(source,vids){
+  const isYT=source==='yt';
+  const gridId=isYT?'ytGrid':'ttGrid';
+  const metaId=isYT?'ytMeta':'ttMeta';
+  const resId=isYT?'ytResults':'ttResults';
+  const storeKey=isYT?'_ytVids':'_ttVids';
+  const selFn=isYT?'ytSelVid':'ttSelVid';
+  const cardPfx=isYT?'ytCard':'ttCard';
+  const selPfx=isYT?'ytSel':'ttSel';
+  const badgeCls=isYT?'vbadge-yt':'vbadge-tt';
+  const badgeTxt=isYT?'▶️':'🎵';
+
+  window[storeKey]=vids;
+  document.getElementById(metaId).textContent=vids.length+' filmów';
+
+  document.getElementById(gridId).innerHTML=vids.map((v,i)=>`
+    <div class="vcard" id="${cardPfx}${i}" onclick="${selFn}(${i})">
+      <div class="vthumb">
+        <img src="${v.thumbnail||''}" loading="lazy" onerror="this.style.display='none'">
+        ${v.duration&&parseInt(v.duration)>0?`<span class="vdur">${fD('PT'+Math.floor(parseInt(v.duration)/60)+'M'+parseInt(v.duration)%60+'S')}</span>`:''}
+        ${parseInt(v.views)>50000?`<span class="vbadge ${badgeCls}">${badgeTxt} ${fN(v.views)}</span>`:''}
+      </div>
+      <div class="vbody">
+        <div class="vtitle">${v.title||'Brak tytułu'}</div>
+        <div class="vchan">${isYT?'📺':'@'} ${v.channel||v.author||''}</div>
+        <div class="vstats">
+          <span class="vstat">👁 ${fN(v.views)}</span>
+          <span class="vstat">❤️ ${fN(v.likes)}</span>
+          ${v.published?`<span class="vstat">📅 ${v.published}</span>`:''}
+        </div>
+      </div>
+      <button class="vsel" id="${selPfx}${i}">Wybierz →</button>
+    </div>`).join('');
+
+  document.getElementById(resId).style.display='block';
+}
+
+// ═══ GENERATE ═══
+async function generateScript(){
+  if(!selVideo)return;
+  const niche=curP==='youtube'?document.getElementById('ytNiche').value:document.getElementById('ttNiche').value;
+  const srcLang=curP==='youtube'?document.getElementById('ytLang').value:'en';
+  const errId=curP==='youtube'?'ytGenErr':'ttGenErr';
+  hideErr(errId);
+  setLoad('genBtn',true);
+  document.getElementById('scriptSection').style.display='none';
+
+  try{
+    const r=await fetch(`${API}/api/generate`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({video:selVideo,niche,srcLang,transcript})
+    });
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    gdata=d;
+    renderAll();
+    document.getElementById('scriptSection').style.display='block';
+    document.getElementById('stickyGen').classList.remove('show');
+    setTimeout(()=>document.getElementById('scriptSection').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  }catch(e){showErr(errId,'❌ '+e.message)}
+  finally{setLoad('genBtn',false)}
+}
+
+// ═══ RENDER ALL ═══
+function renderAll(){
+  const an=gdata.analysis||{};
+  document.getElementById('agrid').innerHTML=
+    `<div class="aitem"><div class="aitem-l">Mechanizm wiralny</div><div class="aitem-t">${an.viralMechanism||'-'}</div></div>
+     <div class="aitem"><div class="aitem-l">Trigger emocjonalny</div><div class="aitem-t">${an.emotionalTrigger||'-'}</div></div>
+     <div class="aitem"><div class="aitem-l">Sekret pierwszych 3 sek.</div><div class="aitem-t">${an.hookSecret||'-'}</div></div>`;
+
+  const vs=gdata.variants||[];
+  document.getElementById('vtabs').innerHTML=vs.map(v=>`
+    <button class="vtab ${v.id===1?'active':''}" id="vt${v.id}" onclick="showV(${v.id})" style="${v.id===1?'border-color:'+C[1]+';':''}">
+      <span class="vtn" style="color:${C[v.id]}">${v.id}. ${v.style}</span>
+      <span class="vtd">${v.styleDesc}</span>
+    </button>`).join('');
+  showV(1);
+
+  const pl=gdata.platforms||{};
+  const pls=[{k:'youtube',i:'▶️',n:'YouTube'},{k:'tiktok',i:'🎵',n:'TikTok/Reels'},{k:'linkedin',i:'💼',n:'LinkedIn'}];
+  document.getElementById('pgrid').innerHTML=pls.map(p=>{
+    const d=pl[p.k];if(!d)return'';
+    const recV=(gdata.variants||[]).find(v=>v.id===d.recommendedVariant);
+    const scr=p.k==='tiktok'?d.shortScript:p.k==='linkedin'?d.post:'';
+    const tags=(d.tags||[]).map(t=>`<span class="tag hot">${t}</span>`).join('');
+    return`<div class="pcard">
+      <div class="pch"><div class="pchn">${p.i} ${p.n}</div>${recV?`<span class="rec">Wariant ${recV.id}</span>`:''}</div>
+      <div class="pcb">
+        <div class="pct">${d.title||''}</div>
+        ${d.hook?`<div class="phook">${d.hook}</div>`:''}
+        ${scr?`<div class="pprev">${scr}</div>`:''}
+        ${d.cta?`<div class="pcta">${d.cta}</div>`:''}
+        ${d.estimatedDuration?`<div style="font-size:11px;color:var(--muted)">⏱ ${d.estimatedDuration}</div>`:''}
+        <div class="ptags">${tags}</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyPl('${p.k}')">📋 Kopiuj</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showV(id){
+  activeV=id;
+  document.querySelectorAll('.vtab').forEach(t=>{t.classList.remove('active');t.style.borderColor='';t.style.background='';});
+  const tab=document.getElementById('vt'+id);
+  if(tab){tab.classList.add('active');tab.style.borderColor=C[id];tab.style.background='rgba(255,58,58,.08)';}
+  const v=(gdata.variants||[]).find(v=>v.id===id);if(!v)return;
+  const sh=(v.script||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\[(.*?)\]/g,'<span style="color:var(--blue);font-size:11px;background:rgba(74,158,255,.1);padding:1px 5px;border-radius:4px">[$1]</span>');
+  document.getElementById('vcont').innerHTML=`
+    <div class="vcwrap">
+      <div class="vch">
+        <div><div class="vchs" style="color:${C[id]}">${v.id}. ${v.style}</div><div class="vchd">${v.styleDesc}</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="copyV(${id})">📋</button>
+      </div>
+      <div class="vcb">
+        <div><div class="vcs-l">🎣 Hook</div><div class="hook-box">${v.hook||''}</div></div>
+        <div><div class="vcs-l">📜 Skrypt</div><div class="script-text">${sh}</div></div>
+        <div><div class="vcs-l">📣 Call to Action</div><div class="cta-box">${v.cta||''}</div></div>
+      </div>
+    </div>`;
+}
+
+function copyV(id){
+  const v=(gdata.variants||[]).find(v=>v.id===id);if(!v)return;
+  navigator.clipboard.writeText([`=== WARIANT ${v.id}: ${v.style.toUpperCase()} ===`,'','🎣 HOOK:',v.hook,'','📜 SKRYPT:',v.script,'','📣 CTA:',v.cta].join('\n')).then(()=>toast('✓ Skopiowano wariant '+id+'!'));
+}
+function copyPl(k){
+  const d=(gdata.platforms||{})[k];if(!d)return;
+  const l=[`=== ${k.toUpperCase()} ===`,''];
+  if(d.title)l.push('TYTUŁ:',d.title,'');
+  if(d.hook)l.push('🎣 HOOK:',d.hook,'');
+  const s=d.shortScript||d.post||'';if(s)l.push('TREŚĆ:',s,'');
+  if(d.cta)l.push('📣 CTA:',d.cta,'');
+  if(d.tags)l.push('TAGI:',(d.tags||[]).join(' '));
+  navigator.clipboard.writeText(l.join('\n')).then(()=>toast('✓ Skopiowano!'));
+}
+</script>
+</body>
+</html>

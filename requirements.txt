@@ -1,0 +1,9 @@
+flask
+flask-cors
+anthropic
+requests
+youtube-transcript-api
+pyktok
+browser-cookie3
+python-dotenv
+gunicorn
