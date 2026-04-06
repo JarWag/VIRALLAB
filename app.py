@@ -490,3 +490,6 @@ if __name__ == "__main__":
     # Uruchomienie lokalne (tylko gdy uruchamiasz python app.py)
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+@app.route("/api/test", methods=["GET"])
+def api_test():
+    return {"status": "ok"}
