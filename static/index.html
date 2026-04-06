@@ -37,17 +37,12 @@ input::placeholder{color:var(--muted);font-size:14px}
 input:focus,select:focus{border-color:rgba(255,58,58,.5);box-shadow:0 0 0 3px rgba(255,58,58,.08)}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%235a6680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-color:var(--s2);padding-right:36px;cursor:pointer}
 select option{background:#12151f}
-.irow{display:flex;gap:8px}
-.irow input{flex:1}
-.ibtn{flex-shrink:0;padding:13px 14px;background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--muted2);font-size:14px;cursor:pointer;-webkit-appearance:none;transition:background .15s}
-.ibtn:active{background:var(--s3)}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border:none;border-radius:var(--rsm);cursor:pointer;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.3px;transition:all .15s;-webkit-appearance:none}
 .btn-primary{background:linear-gradient(135deg,var(--red),var(--orange));color:#fff}
 .btn-tiktok{background:linear-gradient(135deg,#ff2d55,#ff6b9d);color:#fff}
 .btn-primary:active,.btn-tiktok:active{opacity:.85;transform:scale(.98)}
 .btn-primary:disabled,.btn-tiktok:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .btn-ghost{background:var(--s3);border:1px solid var(--border2);color:var(--muted2);font-family:'DM Sans',sans-serif;font-weight:500}
-.btn-ghost:active{opacity:.8}
 .btn-sm{padding:10px 16px;width:auto;font-size:13px;border-radius:8px}
 .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;flex-shrink:0}
 .loading .spinner{display:block}
@@ -153,18 +148,42 @@ select option{background:#12151f}
     </div>
     <div class="g2">
       <div class="fg"><label>Język źródłowy</label>
-        <select id="ytLang"><option value="en">🇺🇸 Angielski</option><option value="de">🇩🇪 Niemiecki</option><option value="es">🇪🇸 Hiszpański</option><option value="fr">🇫🇷 Francuski</option><option value="it">🇮🇹 Włoski</option></select>
+        <select id="ytLang">
+          <option value="en">🇺🇸 Angielski</option>
+          <option value="de">🇩🇪 Niemiecki</option>
+          <option value="es">🇪🇸 Hiszpański</option>
+          <option value="fr">🇫🇷 Francuski</option>
+          <option value="it">🇮🇹 Włoski</option>
+        </select>
       </div>
       <div class="fg"><label>Nisza (PL)</label>
-        <select id="ytNiche"><option value="ogólna">Ogólna</option><option value="finanse osobiste">💰 Finanse</option><option value="zdrowie i fitness">🏃 Fitness</option><option value="jedzenie i gotowanie">🍕 Jedzenie</option><option value="biznes i przedsiębiorczość">📈 Biznes</option><option value="technologia i AI">💻 Tech/AI</option><option value="podróże">✈️ Podróże</option><option value="edukacja">📚 Edukacja</option><option value="motoryzacja">🚗 Moto</option></select>
+        <select id="ytNiche">
+          <option value="ogólna">Ogólna</option>
+          <option value="finanse osobiste">💰 Finanse</option>
+          <option value="zdrowie i fitness">🏃 Fitness</option>
+          <option value="jedzenie i gotowanie">🍕 Jedzenie</option>
+          <option value="biznes i przedsiębiorczość">📈 Biznes</option>
+          <option value="technologia i AI">💻 Tech/AI</option>
+          <option value="podróże">✈️ Podróże</option>
+          <option value="edukacja">📚 Edukacja</option>
+          <option value="motoryzacja">🚗 Moto</option>
+        </select>
       </div>
     </div>
     <div class="g2">
       <div class="fg"><label>Sortuj</label>
-        <select id="ytSort"><option value="viewCount">Wyświetlenia ↓</option><option value="relevance" selected>Trafność</option><option value="date">Najnowsze</option></select>
+        <select id="ytSort">
+          <option value="viewCount" selected>Wyświetlenia ↓</option>
+          <option value="relevance">Trafność</option>
+          <option value="date">Najnowsze</option>
+        </select>
       </div>
       <div class="fg"><label>Wyników</label>
-        <select id="ytMax"><option value="6">6</option><option value="9" selected>9</option><option value="12">12</option></select>
+        <select id="ytMax">
+          <option value="6">6</option>
+          <option value="9" selected>9</option>
+          <option value="12">12</option>
+        </select>
       </div>
     </div>
     <button class="btn btn-primary" id="ytSearchBtn" onclick="ytSearch()" style="margin-top:4px">
@@ -172,6 +191,7 @@ select option{background:#12151f}
     </button>
     <div class="alert alert-err" id="ytErr"></div>
   </div>
+
   <div id="ytResults" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">📊 Wyniki</div>
@@ -187,17 +207,32 @@ select option{background:#12151f}
   <div class="card">
     <div class="clabel">🎵 Wyszukiwanie TikTok</div>
     <div class="ibox">
-      <strong>Wyszukiwarka TikTok przez Apify</strong> — darmowe konto na <a href="https://apify.com" target="_blank">apify.com</a> daje $5 kredytów miesięcznie (ok. 500 wyszukiwań). Token wpisz w pliku <strong>.env</strong> jako <code style="background:var(--s3);padding:1px 4px;border-radius:4px">APIFY_TOKEN=apify_api_...</code>
+      <strong>Wyszukiwarka TikTok przez Apify</strong> — token ustaw w Render jako
+      <code style="background:var(--s3);padding:1px 4px;border-radius:4px">APIFY_TOKEN</code>
     </div>
     <div class="fg"><label>Hasło lub #tag</label>
       <input type="text" id="ttQ" placeholder="np. saving money lub #productivity" onkeydown="if(event.key==='Enter')ttSearch()">
     </div>
     <div class="g2">
       <div class="fg"><label>Nisza (PL)</label>
-        <select id="ttNiche"><option value="ogólna">Ogólna</option><option value="finanse osobiste">💰 Finanse</option><option value="zdrowie i fitness">🏃 Fitness</option><option value="jedzenie i gotowanie">🍕 Jedzenie</option><option value="biznes i przedsiębiorczość">📈 Biznes</option><option value="technologia i AI">💻 Tech/AI</option><option value="podróże">✈️ Podróże</option><option value="edukacja">📚 Edukacja</option><option value="motoryzacja">🚗 Moto</option></select>
+        <select id="ttNiche">
+          <option value="ogólna">Ogólna</option>
+          <option value="finanse osobiste">💰 Finanse</option>
+          <option value="zdrowie i fitness">🏃 Fitness</option>
+          <option value="jedzenie i gotowanie">🍕 Jedzenie</option>
+          <option value="biznes i przedsiębiorczość">📈 Biznes</option>
+          <option value="technologia i AI">💻 Tech/AI</option>
+          <option value="podróże">✈️ Podróże</option>
+          <option value="edukacja">📚 Edukacja</option>
+          <option value="motoryzacja">🚗 Moto</option>
+        </select>
       </div>
       <div class="fg"><label>Wyników</label>
-        <select id="ttMax"><option value="6">6</option><option value="9" selected>9</option><option value="12">12</option></select>
+        <select id="ttMax">
+          <option value="6">6</option>
+          <option value="9" selected>9</option>
+          <option value="12">12</option>
+        </select>
       </div>
     </div>
     <button class="btn btn-tiktok" id="ttSearchBtn" onclick="ttSearch()" style="margin-top:4px">
@@ -205,6 +240,7 @@ select option{background:#12151f}
     </button>
     <div class="alert alert-err" id="ttErr"></div>
   </div>
+
   <div id="ttResults" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">🎵 Wyniki TikTok</div>
@@ -243,7 +279,7 @@ select option{background:#12151f}
 
 <script>
 const API="";
-let selVideo=null, transcript="", gdata={}, activeV=1, curP="youtube";
+let selVideo=null,transcript="",gdata={},activeV=1,curP="youtube";
 const C={1:'var(--red)',2:'var(--blue)',3:'var(--orange)'};
 
 const fN=n=>{n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'mld';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
@@ -288,12 +324,13 @@ async function ytSearch(){
     });
 
     const r=await fetch(`${API}/api/youtube/search?${p}`);
-    const d=await r.json();
+    const text=await r.text();
+    const d=text ? JSON.parse(text) : {};
 
     if(!r.ok) throw new Error(d.error || 'Błąd YouTube');
     if(d.error) throw new Error(d.error);
 
-    renderVids('yt',d.videos);
+    renderVids('yt',d.videos || []);
   }catch(e){
     showErr('ytErr','❌ '+e.message);
   }finally{
@@ -316,18 +353,19 @@ async function ytSelVid(i){
 
   try{
     const r=await fetch(`${API}/api/youtube/transcript?video_id=${encodeURIComponent(selVideo.id)}&lang=${encodeURIComponent(document.getElementById('ytLang').value)}`);
-    const d=await r.json();
+    const text=await r.text();
+    const d=text ? JSON.parse(text) : {};
 
     if(!r.ok){
-      setStatus('ytTsStatus','warn',d.error || 'Nie udało się pobrać transkryptu.');
+      setStatus('ytTsStatus','warn',d.error || 'Brak transkryptu — skrypt powstanie na podstawie opisu filmu.');
     }else if(d.error){
-      setStatus('ytTsStatus','warn','Brak transkryptu — skrypt na podstawie opisu.');
+      setStatus('ytTsStatus','warn','Brak transkryptu — skrypt powstanie na podstawie opisu filmu.');
     }else{
       setStatus('ytTsStatus','ok',`Transkrypt pobrany (${d.is_generated?'auto':'ręczne'}, ${d.length} znaków) ✓`);
-      transcript=d.transcript;
+      transcript=d.transcript || "";
     }
   }catch(e){
-    setStatus('ytTsStatus','warn','Nie udało się pobrać transkryptu.');
+    setStatus('ytTsStatus','warn','Nie udało się pobrać transkryptu — skrypt powstanie na podstawie opisu filmu.');
   }
 
   document.getElementById('genBtn').disabled=false;
@@ -360,14 +398,15 @@ async function ttSearch(){
     });
 
     const r=await fetch(`${API}/api/tiktok/apify-search?${p}`);
-    const d=await r.json();
+    const text=await r.text();
+    const d=text ? JSON.parse(text) : {};
 
     document.getElementById('apifyLoad')?.remove();
 
     if(!r.ok) throw new Error(d.error || 'Błąd TikTok');
     if(d.error) throw new Error(d.error);
 
-    renderVids('tt',d.videos);
+    renderVids('tt',d.videos || []);
   }catch(e){
     document.getElementById('apifyLoad')?.remove();
     showErr('ttErr','❌ '+e.message);
@@ -408,7 +447,7 @@ function renderVids(source,vids){
     <div class="vcard" id="${cardPfx}${i}" onclick="${selFn}(${i})">
       <div class="vthumb">
         <img src="${v.thumbnail||''}" loading="lazy" onerror="this.style.display='none'">
-        ${v.duration&&parseInt(v.duration)>0?`<span class="vdur">${fD('PT'+Math.floor(parseInt(v.duration)/60)+'M'+parseInt(v.duration)%60+'S')}</span>`:''}
+        ${v.duration&&String(v.duration).startsWith('PT')?`<span class="vdur">${fD(v.duration)}</span>`:''}
         ${parseInt(v.views)>50000?`<span class="vbadge ${badgeCls}">${badgeTxt} ${fN(v.views)}</span>`:''}
       </div>
       <div class="vbody">
@@ -427,43 +466,62 @@ function renderVids(source,vids){
 }
 
 async function generateScript(){
-  if(!selVideo)return;
+  if(!selVideo) return;
 
-  const niche=curP==='youtube'
+  const niche = curP === 'youtube'
     ? document.getElementById('ytNiche').value
     : document.getElementById('ttNiche').value;
 
-  const srcLang=curP==='youtube'
+  const srcLang = curP === 'youtube'
     ? document.getElementById('ytLang').value
     : 'en';
 
-  const errId=curP==='youtube'?'ytGenErr':'ttGenErr';
+  const errId = curP === 'youtube' ? 'ytGenErr' : 'ttGenErr';
 
   hideErr(errId);
-  setLoad('genBtn',true);
-  document.getElementById('scriptSection').style.display='none';
+  setLoad('genBtn', true);
+  document.getElementById('scriptSection').style.display = 'none';
 
   try{
-    const r=await fetch(`${API}/api/generate`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({video:selVideo,niche,srcLang,transcript})
+    const r = await fetch(`${API}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        video: selVideo,
+        niche,
+        srcLang,
+        transcript
+      })
     });
 
-    const d=await r.json();
+    const text = await r.text();
+    let d = {};
+
+    try{
+      d = text ? JSON.parse(text) : {};
+    }catch{
+      throw new Error('Serwer zwrócił nieprawidłową odpowiedź. Sprawdź logi Render.');
+    }
 
     if(!r.ok) throw new Error(d.error || 'Błąd generowania');
     if(d.error) throw new Error(d.error);
 
-    gdata=d;
+    gdata = d;
     renderAll();
-    document.getElementById('scriptSection').style.display='block';
+    document.getElementById('scriptSection').style.display = 'block';
     document.getElementById('stickyGen').classList.remove('show');
-    setTimeout(()=>document.getElementById('scriptSection').scrollIntoView({behavior:'smooth',block:'start'}),100);
+
+    setTimeout(() => {
+      document.getElementById('scriptSection').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 100);
+
   }catch(e){
-    showErr(errId,'❌ '+e.message);
+    showErr(errId, '❌ ' + e.message);
   }finally{
-    setLoad('genBtn',false);
+    setLoad('genBtn', false);
   }
 }
 
@@ -510,7 +568,10 @@ function showV(id){
   const tab=document.getElementById('vt'+id);
   if(tab){tab.classList.add('active');tab.style.borderColor=C[id];tab.style.background='rgba(255,58,58,.08)';}
   const v=(gdata.variants||[]).find(v=>v.id===id);if(!v)return;
-  const sh=(v.script||'').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\[(.*?)\]/g,'<span style="color:var(--blue);font-size:11px;background:rgba(74,158,255,.1);padding:1px 5px;border-radius:4px">[$1]</span>');
+  const sh=(v.script||'')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/\[(.*?)\]/g,'<span style="color:var(--blue);font-size:11px;background:rgba(74,158,255,.1);padding:1px 5px;border-radius:4px">[$1]</span>');
   document.getElementById('vcont').innerHTML=`
     <div class="vcwrap">
       <div class="vch">

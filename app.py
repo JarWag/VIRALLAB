@@ -1,7 +1,6 @@
 """
 ViralLab — serwer Flask
-Uruchom: python app.py
-Otwórz:  http://localhost:5000
+Uruchom lokalnie: python app.py
 """
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -21,7 +20,7 @@ except ImportError:
 app = Flask(__name__, static_folder="static")
 CORS(app)
 
-# Klucze API — czytane z .env automatycznie
+# Klucze API
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY", "")
 RAPIDAPI_KEY      = os.environ.get("RAPIDAPI_KEY", "")
@@ -33,51 +32,81 @@ def index():
     return send_from_directory("static", "index.html")
 
 
+@app.route("/api/test", methods=["GET"])
+def api_test():
+    return jsonify({"status": "ok"})
+
+
 # ── YouTube: wyszukiwanie ──
 @app.route("/api/youtube/search")
 def youtube_search():
     yt_key = YOUTUBE_API_KEY
     query  = request.args.get("q", "")
-    order  = request.args.get("order", "relevance")
+    order  = request.args.get("order", "viewCount")
     lang   = request.args.get("lang", "en")
     max_r  = request.args.get("maxResults", "9")
 
-    if not yt_key: return jsonify({"error": "Brak klucza YouTube API w pliku .env"}), 400
-    if not query:  return jsonify({"error": "Brak zapytania"}), 400
+    if not yt_key:
+        return jsonify({"error": "Brak klucza YouTube API w Render (Environment Variables)"}), 400
+    if not query:
+        return jsonify({"error": "Brak zapytania"}), 400
 
-    r = requests.get("https://www.googleapis.com/youtube/v3/search", params={
-        "part": "snippet", "q": query.lstrip("#"), "type": "video",
-        "order": order, "relevanceLanguage": lang, "maxResults": max_r, "key": yt_key
-    }, timeout=10)
+    r = requests.get(
+        "https://www.googleapis.com/youtube/v3/search",
+        params={
+            "part": "snippet",
+            "q": query.lstrip("#"),
+            "type": "video",
+            "order": order,
+            "relevanceLanguage": lang,
+            "maxResults": max_r,
+            "key": yt_key
+        },
+        timeout=15
+    )
     data = r.json()
 
-    if "error" in data: return jsonify({"error": data["error"]["message"]}), 400
-    items = data.get("items", [])
-    if not items: return jsonify({"error": "Brak wyników"}), 404
+    if "error" in data:
+        return jsonify({"error": data["error"]["message"]}), 400
 
-    ids = ",".join(i["id"]["videoId"] for i in items)
-    rs  = requests.get("https://www.googleapis.com/youtube/v3/videos", params={
-        "part": "statistics,contentDetails,snippet", "id": ids, "key": yt_key
-    }, timeout=10)
+    items = data.get("items", [])
+    if not items:
+        return jsonify({"error": "Brak wyników"}), 404
+
+    ids = ",".join(i["id"]["videoId"] for i in items if i.get("id", {}).get("videoId"))
+    if not ids:
+        return jsonify({"error": "Brak prawidłowych identyfikatorów filmów"}), 404
+
+    rs = requests.get(
+        "https://www.googleapis.com/youtube/v3/videos",
+        params={
+            "part": "statistics,contentDetails,snippet",
+            "id": ids,
+            "key": yt_key
+        },
+        timeout=15
+    )
     stats_map = {v["id"]: v for v in rs.json().get("items", [])}
 
     result = []
     for item in items:
         vid = item["id"]["videoId"]
-        sn  = item["snippet"]
-        st  = stats_map.get(vid, {})
+        sn = item.get("snippet", {})
+        st = stats_map.get(vid, {})
+
         result.append({
-            "id":          vid,
-            "title":       sn.get("title", ""),
+            "id": vid,
+            "title": sn.get("title", ""),
             "description": sn.get("description", ""),
-            "channel":     sn.get("channelTitle", ""),
-            "thumbnail":   (sn.get("thumbnails") or {}).get("medium", {}).get("url", ""),
-            "published":   sn.get("publishedAt", "")[:10],
-            "views":       st.get("statistics", {}).get("viewCount", "0"),
-            "likes":       st.get("statistics", {}).get("likeCount", "0"),
-            "duration":    st.get("contentDetails", {}).get("duration", ""),
-            "tags":        st.get("snippet", {}).get("tags", [])[:10],
+            "channel": sn.get("channelTitle", ""),
+            "thumbnail": (sn.get("thumbnails") or {}).get("medium", {}).get("url", ""),
+            "published": sn.get("publishedAt", "")[:10],
+            "views": st.get("statistics", {}).get("viewCount", "0"),
+            "likes": st.get("statistics", {}).get("likeCount", "0"),
+            "duration": st.get("contentDetails", {}).get("duration", ""),
+            "tags": st.get("snippet", {}).get("tags", [])[:10],
         })
+
     return jsonify({"videos": result})
 
 
@@ -85,8 +114,10 @@ def youtube_search():
 @app.route("/api/youtube/transcript")
 def youtube_transcript():
     video_id = request.args.get("video_id", "")
-    lang     = request.args.get("lang", "en")
-    if not video_id: return jsonify({"error": "Brak video_id"}), 400
+    lang = request.args.get("lang", "en")
+
+    if not video_id:
+        return jsonify({"error": "Brak video_id"}), 400
 
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
@@ -95,7 +126,7 @@ def youtube_transcript():
         language_code = lang
         is_generated = True
 
-        # Próba 1: nowe API (>= 0.7)
+        # Próba 1: nowsze API
         try:
             for try_lang in [lang, "en"]:
                 try:
@@ -112,7 +143,7 @@ def youtube_transcript():
         except Exception:
             pass
 
-        # Próba 2: stare API (< 0.7)
+        # Próba 2: starsze API
         if not full_text:
             try:
                 transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
@@ -131,7 +162,7 @@ def youtube_transcript():
             except Exception:
                 pass
 
-        # Próba 3: get_transcript
+        # Próba 3
         if not full_text:
             try:
                 result = YouTubeTranscriptApi.get_transcript(video_id)
@@ -146,14 +177,14 @@ def youtube_transcript():
             full_text = full_text[:8000] + "..."
 
         return jsonify({
-            "transcript":   full_text,
-            "language":     language_code,
+            "transcript": full_text,
+            "language": language_code,
             "is_generated": is_generated,
-            "length":       len(full_text)
+            "length": len(full_text)
         })
 
     except ImportError:
-        return jsonify({"error": "Uruchom: pip install youtube-transcript-api"}), 500
+        return jsonify({"error": "Brakuje pakietu youtube-transcript-api"}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -161,15 +192,16 @@ def youtube_transcript():
 # ── TikTok: wyszukiwanie przez Apify ──
 @app.route("/api/tiktok/search")
 def tiktok_search():
-    query       = request.args.get("q", "").strip()
-    max_r       = int(request.args.get("maxResults", "9"))
+    query = request.args.get("q", "").strip()
+    max_r = int(request.args.get("maxResults", "9"))
     apify_token = request.args.get("apify_token") or APIFY_TOKEN
 
-    if not query:       return jsonify({"error": "Brak zapytania"}), 400
-    if not apify_token: return jsonify({"error": "Brak tokenu Apify — dodaj APIFY_TOKEN do pliku .env"}), 400
+    if not query:
+        return jsonify({"error": "Brak zapytania"}), 400
+    if not apify_token:
+        return jsonify({"error": "Brak tokenu Apify — dodaj APIFY_TOKEN do Render Environment Variables"}), 400
 
     try:
-        # Uruchom aktora TikTok Scraper na Apify
         run_url = "https://api.apify.com/v2/acts/clockworks~free-tiktok-scraper/runs"
         payload = {
             "hashtags": [query.lstrip("#")],
@@ -178,26 +210,29 @@ def tiktok_search():
             "shouldDownloadVideos": False,
             "shouldDownloadCovers": False,
         }
-        headers = {"Authorization": f"Bearer {apify_token}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {apify_token}",
+            "Content-Type": "application/json"
+        }
 
-        # Start run
-        r = requests.post(run_url, json=payload, headers=headers, timeout=15)
+        r = requests.post(run_url, json=payload, headers=headers, timeout=20)
         run_data = r.json()
 
         if r.status_code != 201:
             msg = run_data.get("error", {}).get("message", "Błąd Apify")
             return jsonify({"error": f"Apify: {msg}"}), 400
 
-        run_id      = run_data["data"]["id"]
-        dataset_id  = run_data["data"]["defaultDatasetId"]
+        run_id = run_data["data"]["id"]
+        dataset_id = run_data["data"]["defaultDatasetId"]
 
-        # Czekaj na zakończenie (max 60 sek)
         import time
+        status = ""
         for _ in range(30):
             time.sleep(2)
             status_r = requests.get(
                 f"https://api.apify.com/v2/acts/clockworks~free-tiktok-scraper/runs/{run_id}",
-                headers=headers, timeout=10
+                headers=headers,
+                timeout=15
             )
             status = status_r.json().get("data", {}).get("status", "")
             if status in ("SUCCEEDED", "FAILED", "ABORTED", "TIMED-OUT"):
@@ -206,10 +241,10 @@ def tiktok_search():
         if status != "SUCCEEDED":
             return jsonify({"error": "Apify nie ukończył wyszukiwania — spróbuj ponownie"}), 400
 
-        # Pobierz wyniki
         items_r = requests.get(
             f"https://api.apify.com/v2/datasets/{dataset_id}/items?limit={max_r}",
-            headers=headers, timeout=10
+            headers=headers,
+            timeout=15
         )
         items = items_r.json()
 
@@ -219,15 +254,15 @@ def tiktok_search():
         results = []
         for item in items[:max_r]:
             results.append({
-                "id":          str(item.get("id", "")),
-                "title":       str(item.get("text", ""))[:120],
+                "id": str(item.get("id", "")),
+                "title": str(item.get("text", ""))[:120],
                 "description": str(item.get("text", "")),
-                "author":      str(item.get("authorMeta", {}).get("name", "")),
-                "thumbnail":   str(item.get("covers", {}).get("default", "")),
-                "views":       str(item.get("playCount", "0")),
-                "likes":       str(item.get("diggCount", "0")),
-                "duration":    str(item.get("videoMeta", {}).get("duration", "")),
-                "source_url":  str(item.get("webVideoUrl", ""))
+                "author": str(item.get("authorMeta", {}).get("name", "")),
+                "thumbnail": str(item.get("covers", {}).get("default", "")),
+                "views": str(item.get("playCount", "0")),
+                "likes": str(item.get("diggCount", "0")),
+                "duration": str(item.get("videoMeta", {}).get("duration", "")),
+                "source_url": str(item.get("webVideoUrl", ""))
             })
 
         return jsonify({"videos": results})
@@ -236,20 +271,19 @@ def tiktok_search():
         return jsonify({"error": f"Błąd połączenia z Apify: {str(e)}"}), 500
 
 
-
-
-# ── TikTok: wyszukiwanie przez Apify ──
+# ── TikTok: alternatywne wyszukiwanie przez Apify ──
 @app.route("/api/tiktok/apify-search")
 def tiktok_apify_search():
-    query     = request.args.get("q", "").strip()
-    max_r     = int(request.args.get("maxResults", "9"))
-    token     = request.args.get("apify_token") or APIFY_TOKEN
+    query = request.args.get("q", "").strip()
+    max_r = int(request.args.get("maxResults", "9"))
+    token = request.args.get("apify_token") or APIFY_TOKEN
 
-    if not query: return jsonify({"error": "Brak zapytania"}), 400
-    if not token: return jsonify({"error": "Brak tokenu Apify — dodaj APIFY_TOKEN do pliku .env"}), 400
+    if not query:
+        return jsonify({"error": "Brak zapytania"}), 400
+    if not token:
+        return jsonify({"error": "Brak tokenu Apify — dodaj APIFY_TOKEN do Render Environment Variables"}), 400
 
     try:
-        # Uruchom aktora TikTok Scraper na Apify
         run_url = "https://api.apify.com/v2/acts/clockworks~free-tiktok-scraper/runs"
         payload = {
             "hashtags": [query.lstrip("#")],
@@ -262,8 +296,7 @@ def tiktok_apify_search():
             "Content-Type": "application/json"
         }
 
-        # Start run
-        r = requests.post(run_url, json=payload, headers=headers, timeout=15)
+        r = requests.post(run_url, json=payload, headers=headers, timeout=20)
         run_data = r.json()
 
         if "error" in run_data:
@@ -273,14 +306,14 @@ def tiktok_apify_search():
         if not run_id:
             return jsonify({"error": "Nie udało się uruchomić aktora Apify"}), 400
 
-        # Czekaj na wyniki (max 30 sekund)
         import time
         dataset_id = None
         for _ in range(15):
             time.sleep(2)
             status_r = requests.get(
                 f"https://api.apify.com/v2/actor-runs/{run_id}",
-                headers=headers, timeout=10
+                headers=headers,
+                timeout=15
             )
             status_d = status_r.json().get("data", {})
             status = status_d.get("status", "")
@@ -293,10 +326,10 @@ def tiktok_apify_search():
         if not dataset_id:
             return jsonify({"error": "Timeout — Apify nie zwróciło wyników w czasie. Spróbuj ponownie."}), 400
 
-        # Pobierz wyniki
         items_r = requests.get(
             f"https://api.apify.com/v2/datasets/{dataset_id}/items?limit={max_r}",
-            headers=headers, timeout=10
+            headers=headers,
+            timeout=15
         )
         items = items_r.json()
 
@@ -306,15 +339,15 @@ def tiktok_apify_search():
         results = []
         for item in items[:max_r]:
             results.append({
-                "id":          item.get("id", ""),
-                "title":       (item.get("text", "") or item.get("desc", ""))[:120],
+                "id": item.get("id", ""),
+                "title": (item.get("text", "") or item.get("desc", ""))[:120],
                 "description": item.get("text", "") or item.get("desc", ""),
-                "author":      item.get("authorMeta", {}).get("name", "") or item.get("author", {}).get("uniqueId", ""),
-                "thumbnail":   item.get("covers", {}).get("default", "") or item.get("videoMeta", {}).get("coverUrl", ""),
-                "views":       str(item.get("playCount", item.get("stats", {}).get("playCount", "0"))),
-                "likes":       str(item.get("diggCount", item.get("stats", {}).get("diggCount", "0"))),
-                "duration":    str(item.get("videoMeta", {}).get("duration", "")),
-                "source_url":  item.get("webVideoUrl", "")
+                "author": item.get("authorMeta", {}).get("name", "") or item.get("author", {}).get("uniqueId", ""),
+                "thumbnail": item.get("covers", {}).get("default", "") or item.get("videoMeta", {}).get("coverUrl", ""),
+                "views": str(item.get("playCount", item.get("stats", {}).get("playCount", "0"))),
+                "likes": str(item.get("diggCount", item.get("stats", {}).get("diggCount", "0"))),
+                "duration": str(item.get("videoMeta", {}).get("duration", "")),
+                "source_url": item.get("webVideoUrl", "")
             })
 
         return jsonify({"videos": results})
@@ -322,37 +355,44 @@ def tiktok_apify_search():
     except Exception as e:
         return jsonify({"error": f"Błąd połączenia z Apify: {str(e)}"}), 500
 
+
 # ── TikTok: pobierz dane z linku ──
 @app.route("/api/tiktok/fetch")
 def tiktok_fetch():
-    url       = request.args.get("url", "").strip()
+    url = request.args.get("url", "").strip()
     rapid_key = request.args.get("rapid_key") or RAPIDAPI_KEY
 
-    if not url:       return jsonify({"error": "Brak URL"}), 400
-    if not rapid_key: return jsonify({"error": "Brak klucza RapidAPI — dodaj RAPIDAPI_KEY do pliku .env"}), 400
+    if not url:
+        return jsonify({"error": "Brak URL"}), 400
+    if not rapid_key:
+        return jsonify({"error": "Brak klucza RapidAPI — dodaj RAPIDAPI_KEY do Render Environment Variables"}), 400
 
     try:
         r = requests.get(
             "https://tiktok-api23.p.rapidapi.com/api/detail",
             params={"url": url},
-            headers={"X-RapidAPI-Key": rapid_key, "X-RapidAPI-Host": "tiktok-api23.p.rapidapi.com"},
-            timeout=10
+            headers={
+                "X-RapidAPI-Key": rapid_key,
+                "X-RapidAPI-Host": "tiktok-api23.p.rapidapi.com"
+            },
+            timeout=15
         )
         d = r.json()
         item = d.get("itemInfo", {}).get("itemStruct", {})
+
         if item:
-            desc   = item.get("desc", "")
-            stats  = item.get("stats", {})
+            desc = item.get("desc", "")
+            stats = item.get("stats", {})
             author = item.get("author", {})
             return jsonify({
-                "platform":    "tiktok",
-                "title":       desc[:100],
+                "platform": "tiktok",
+                "title": desc[:100],
                 "description": desc,
-                "author":      author.get("nickname", ""),
-                "thumbnail":   item.get("video", {}).get("cover", ""),
-                "views":       str(stats.get("playCount", "0")),
-                "likes":       str(stats.get("diggCount", "0")),
-                "source_url":  url
+                "author": author.get("nickname", ""),
+                "thumbnail": item.get("video", {}).get("cover", ""),
+                "views": str(stats.get("playCount", "0")),
+                "likes": str(stats.get("diggCount", "0")),
+                "source_url": url
             })
     except Exception:
         pass
@@ -363,35 +403,79 @@ def tiktok_fetch():
 # ── Claude: generuj 3 warianty skryptu ──
 @app.route("/api/generate", methods=["POST"])
 def generate_script():
-    body       = request.get_json()
-    video      = body.get("video", {})
-    niche      = body.get("niche", "ogólna")
-    src_lang   = body.get("srcLang", "en")
-    transcript = body.get("transcript", "")
-    ant_key    = ANTHROPIC_API_KEY
+    try:
+        body = request.get_json(silent=True) or {}
 
-    if not ant_key: return jsonify({"error": "Brak klucza Anthropic API w pliku .env"}), 400
+        video = body.get("video", {})
+        niche = body.get("niche", "ogólna")
+        src_lang = body.get("srcLang", "en")
+        transcript = body.get("transcript", "")
+        ant_key = ANTHROPIC_API_KEY
 
-    lang_names = {"en":"angielski","de":"niemiecki","es":"hiszpański","fr":"francuski","it":"włoski"}
+        if not ant_key:
+            return jsonify({"error": "Brak klucza Anthropic API w Render (Environment Variables)"}), 400
 
-    def fmt(n):
-        n = int(n or 0)
-        if n >= 1_000_000: return f"{n/1_000_000:.1f}M"
-        if n >= 1_000:     return f"{n/1_000:.0f}K"
-        return str(n)
+        if not video:
+            return jsonify({"error": "Brak danych filmu"}), 400
 
-    if transcript:
-        source_section = f"PEŁNY TRANSKRYPT ORYGINAŁU:\n{transcript}"
-    else:
-        source_section = f"OPIS FILMU (brak transkryptu):\n{video.get('description','')[:800]}\nTagi: {', '.join(video.get('tags',[]))}"
+        lang_names = {
+            "en": "angielski",
+            "de": "niemiecki",
+            "es": "hiszpański",
+            "fr": "francuski",
+            "it": "włoski"
+        }
 
-    prompt = f"""Jesteś ekspertem od viralowego contentu i copywriterem z 15-letnim doświadczeniem w Polsce.
+        def fmt(n):
+            try:
+                n = int(n or 0)
+            except Exception:
+                n = 0
+            if n >= 1_000_000:
+                return f"{n/1_000_000:.1f}M"
+            if n >= 1_000:
+                return f"{n/1_000:.0f}K"
+            return str(n)
+
+        description = (video.get("description") or "").strip()
+        tags = video.get("tags") or []
+
+        if transcript and transcript.strip():
+            source_section = f"PEŁNY TRANSKRYPT ORYGINAŁU:\n{transcript.strip()}"
+        else:
+            fallback_parts = []
+
+            if description:
+                fallback_parts.append(f"OPIS FILMU:\n{description[:1200]}")
+
+            if tags:
+                fallback_parts.append(f"TAGI:\n{', '.join(tags[:15])}")
+
+            title = (video.get("title") or "").strip()
+            author = (video.get("channel") or video.get("author") or "").strip()
+
+            if title:
+                fallback_parts.append(f"TYTUŁ FILMU:\n{title}")
+
+            if author:
+                fallback_parts.append(f"KANAŁ/AUTOR:\n{author}")
+
+            if not fallback_parts:
+                fallback_parts.append("Brak transkryptu, opisu i tagów. Oprzyj analizę na samych metadanych filmu.")
+
+            source_section = (
+                "BRAK DOSTĘPNEGO TRANSKRYPTU. "
+                "Stwórz analizę i nowe warianty na podstawie opisu, tagów, tytułu i metadanych filmu.\n\n"
+                + "\n\n".join(fallback_parts)
+            )
+
+        prompt = f"""Jesteś ekspertem od viralowego contentu i copywriterem z 15-letnim doświadczeniem w Polsce.
 
 ORYGINALNY FILM:
-- Tytuł: {video.get('title','')}
-- Kanał/Autor: {video.get('channel', video.get('author',''))}
-- Wyświetlenia: {fmt(video.get('views',0))}
-- Język oryginału: {lang_names.get(src_lang,'angielski')}
+- Tytuł: {video.get('title', '')}
+- Kanał/Autor: {video.get('channel', video.get('author', ''))}
+- Wyświetlenia: {fmt(video.get('views', 0))}
+- Język oryginału: {lang_names.get(src_lang, 'angielski')}
 - Nisza docelowa PL: {niche}
 
 {source_section}
@@ -403,6 +487,7 @@ ZASADY ADAPTACJI:
 - Zamień realia zagraniczne na polskie (Walmart→Biedronka/Lidl, $→zł, itp.)
 - Zachowaj mechanizm wiralności oryginału
 - Skrypt ma brzmieć naturalnie po polsku, NIE jak tłumaczenie
+- Jeśli brak transkryptu, wykorzystaj maksymalnie opis, tytuł, tagi i metadane filmu
 
 WARIANTY:
 - Wariant 1 EMOCJONALNY: osobista historia, storytelling, emocje
@@ -469,28 +554,36 @@ Odpowiedz TYLKO JSON bez markdown:
   }}
 }}"""
 
-    client  = anthropic.Anthropic(api_key=ant_key)
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}]
-    )
+        client = anthropic.Anthropic(api_key=ant_key)
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=4096,
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-    raw   = message.content[0].text
-    clean = raw.replace("```json", "").replace("```", "").strip()
-    return jsonify(json.loads(clean))
+        raw = message.content[0].text if message.content else ""
+        clean = raw.replace("```json", "").replace("```", "").strip()
 
+        try:
+            parsed = json.loads(clean)
+            return jsonify(parsed)
+        except Exception:
+            return jsonify({
+                "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
+                "raw": clean[:2000]
+            }), 500
 
-@app.route("/api/test", methods=["GET"])
-def api_test():
-    return {"status": "ok"}
+    except Exception as e:
+        print("GENERATE ERROR:", str(e))
+        return jsonify({"error": f"Błąd generowania: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
-    print("\n🚀 ViralLab uruchomiony → http://localhost:5000")
-    print(f" YouTube API: {'✓' if YOUTUBE_API_KEY else '✗ BRAK — dodaj do .env'}")
-    print(f" Anthropic API: {'✓' if ANTHROPIC_API_KEY else '✗ BRAK — dodaj do .env'}")
-    print(f" RapidAPI: {'✓' if RAPIDAPI_KEY else '✗ BRAK — dodaj do .env (potrzebne dla TikTok)'}\n")
+    print("\n🚀 ViralLab uruchomiony lokalnie")
+    print(f" YouTube API: {'✓' if YOUTUBE_API_KEY else '✗ BRAK'}")
+    print(f" Anthropic API: {'✓' if ANTHROPIC_API_KEY else '✗ BRAK'}")
+    print(f" RapidAPI: {'✓' if RAPIDAPI_KEY else '✗ BRAK'}")
+    print(f" Apify: {'✓' if APIFY_TOKEN else '✗ BRAK'}\n")
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
