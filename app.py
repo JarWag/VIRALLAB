@@ -561,17 +561,28 @@ Odpowiedz TYLKO JSON bez markdown:
             messages=[{"role": "user", "content": prompt}]
         )
 
-        raw = message.content[0].text if message.content else ""
-        clean = raw.replace("```json", "").replace("```", "").strip()
+       raw = message.content[0].text if message.content else ""
+clean = raw.replace("```json", "").replace("```", "").strip()
 
-        try:
-            parsed = json.loads(clean)
-            return jsonify(parsed)
-        except Exception:
-            return jsonify({
-                "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
-                "raw": clean[:2000]
-            }), 500
+try:
+    parsed = json.loads(clean)
+    return jsonify(parsed)
+except Exception:
+    pass
+
+# Próba wyciągnięcia JSON-a z dłuższej odpowiedzi
+try:
+    match = re.search(r"\{.*\}", clean, re.DOTALL)
+    if match:
+        parsed = json.loads(match.group(0))
+        return jsonify(parsed)
+except Exception:
+    pass
+
+return jsonify({
+    "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
+    "raw": clean[:2000]
+}), 500
 
     except Exception as e:
         print("GENERATE ERROR:", str(e))
