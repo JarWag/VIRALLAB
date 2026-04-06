@@ -554,10 +554,7 @@ Odpowiedz TYLKO JSON bez markdown:
   }}
 }}"""
 
-      client = anthropic.Anthropic(
-    api_key=ant_key,
-    timeout=120.0
-)
+     client = anthropic.Anthropic(api_key=ant_key)
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=2200,
