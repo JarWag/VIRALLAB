@@ -508,7 +508,7 @@ Odpowiedz TYLKO JSON bez markdown:
       "styleDesc": "Osobista historia, emocje, storytelling",
       "hook": "Pierwsze zdanie zatrzymujące widza (max 120 znaków)",
       "cta": "Call to action na końcu",
-      "script": "Pełny skrypt 400-600 słów. Sekcje: WSTĘP / ROZWINIĘCIE / ZAKOŃCZENIE. Didaskalia: [PAUZA] [ZBLIŻENIE] [TEKST NA EKRANIE: xxx]"
+      "script": "Pełny skrypt 350-450 słów. Sekcje: WSTĘP / ROZWINIĘCIE / ZAKOŃCZENIE. Didaskalia: [PAUZA] [ZBLIŻENIE] [TEKST NA EKRANIE: xxx]"
     }},
     {{
       "id": 2,
@@ -516,7 +516,7 @@ Odpowiedz TYLKO JSON bez markdown:
       "styleDesc": "Fakty, dane, wiedza krok po kroku",
       "hook": "Pierwsze zdanie (max 120 znaków)",
       "cta": "Call to action",
-      "script": "Pełny skrypt 400-600 słów z didaskaliami i sekcjami."
+      "script": "Pełny skrypt 350-450 słów z didaskaliami i sekcjami."
     }},
     {{
       "id": 3,
@@ -524,14 +524,14 @@ Odpowiedz TYLKO JSON bez markdown:
       "styleDesc": "Kontrowersja, zaskoczenie, obalenie mitu",
       "hook": "Pierwsze zdanie (max 120 znaków)",
       "cta": "Call to action",
-      "script": "Pełny skrypt 400-600 słów z didaskaliami i sekcjami."
+      "script": "Pełny skrypt 350-450 słów z didaskaliami i sekcjami."
     }}
   ],
   "platforms": {{
     "youtube": {{
       "recommendedVariant": 1,
       "title": "Tytuł YouTube max 70 znaków",
-      "description": "Opis pod filmem 150-200 słów z hashtagami",
+      "description": "Opis pod filmem 80-120 słów z hashtagami",
       "tags": ["tag1","tag2","tag3","tag4","tag5"],
       "estimatedDuration": "np. 6-8 minut"
     }},
@@ -554,10 +554,13 @@ Odpowiedz TYLKO JSON bez markdown:
   }}
 }}"""
 
-        client = anthropic.Anthropic(api_key=ant_key)
+      client = anthropic.Anthropic(
+    api_key=ant_key,
+    timeout=120.0
+)
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=4096,
+            max_tokens=2200,
             messages=[{"role": "user", "content": prompt}]
         )
 
