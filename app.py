@@ -481,15 +481,16 @@ Odpowiedz TYLKO JSON bez markdown:
     return jsonify(json.loads(clean))
 
 
+@app.route("/api/test", methods=["GET"])
+def api_test():
+    return {"status": "ok"}
+
+
 if __name__ == "__main__":
     print("\n🚀 ViralLab uruchomiony → http://localhost:5000")
     print(f" YouTube API: {'✓' if YOUTUBE_API_KEY else '✗ BRAK — dodaj do .env'}")
     print(f" Anthropic API: {'✓' if ANTHROPIC_API_KEY else '✗ BRAK — dodaj do .env'}")
     print(f" RapidAPI: {'✓' if RAPIDAPI_KEY else '✗ BRAK — dodaj do .env (potrzebne dla TikTok)'}\n")
-    
-    # Uruchomienie lokalne (tylko gdy uruchamiasz python app.py)
+
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-@app.route("/api/test", methods=["GET"])
-def api_test():
-    return {"status": "ok"}
