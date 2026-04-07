@@ -321,50 +321,18 @@ def tiktok_apify_search():
 
 
 # =========================
-# TIKTOK FETCH FROM URL
+# LANGUAGE HELPERS
 # =========================
-@app.route("/api/tiktok/fetch", methods=["GET"])
-def tiktok_fetch():
-    url = request.args.get("url", "").strip()
-
-    if not url:
-        return jsonify({"error": "Brak URL"}), 400
-
-    if not RAPIDAPI_KEY:
-        return jsonify({"error": "Brak RAPIDAPI_KEY w Render Environment Variables"}), 400
-
-    try:
-        r = requests.get(
-            "https://tiktok-api23.p.rapidapi.com/api/detail",
-            params={"url": url},
-            headers={
-                "X-RapidAPI-Key": RAPIDAPI_KEY,
-                "X-RapidAPI-Host": "tiktok-api23.p.rapidapi.com",
-            },
-            timeout=15,
-        )
-        d = r.json()
-        item = d.get("itemInfo", {}).get("itemStruct", {})
-
-        if item:
-            desc = item.get("desc", "")
-            stats = item.get("stats", {})
-            author = item.get("author", {})
-            return jsonify({
-                "platform": "tiktok",
-                "title": desc[:100],
-                "description": desc,
-                "author": author.get("nickname", ""),
-                "thumbnail": item.get("video", {}).get("cover", ""),
-                "views": str(stats.get("playCount", "0")),
-                "likes": str(stats.get("diggCount", "0")),
-                "source_url": url,
-            })
-
-    except Exception:
-        pass
-
-    return jsonify({"error": "Nie udało się pobrać danych. Sprawdź link i klucz RapidAPI."}), 400
+def language_name(code: str) -> str:
+    mapping = {
+        "pl": "polskim",
+        "en": "angielskim",
+        "de": "niemieckim",
+        "es": "hiszpańskim",
+        "fr": "francuskim",
+        "it": "włoskim",
+    }
+    return mapping.get(code, "polskim")
 
 
 # =========================
@@ -379,6 +347,7 @@ def generate_script():
         transcript = body.get("transcript", "")
         niche = body.get("niche", "ogólna")
         src_lang = body.get("srcLang", "en")
+        output_lang = body.get("outputLang", "pl")
 
         if not ANTHROPIC_API_KEY:
             return jsonify({"error": "Brak ANTHROPIC_API_KEY w Render Environment Variables"}), 400
@@ -392,7 +361,7 @@ def generate_script():
         channel = (video.get("channel") or video.get("author") or "").strip()
 
         if transcript and transcript.strip():
-            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:4000]}"
+            source_block = f"PEŁNY TRANSKRYPT MATERIAŁU:\n{transcript.strip()[:4000]}"
         else:
             fallback_parts = []
 
@@ -414,33 +383,53 @@ def generate_script():
                 + "\n\n".join(fallback_parts)
             )
 
+        out_lang_name = language_name(output_lang)
+
         prompt = f"""
-Jesteś polskim copywriterem od viral contentu.
+Jesteś ekspertem od viralowego contentu i copywriterem.
 
-Masz stworzyć CAŁY wynik WYŁĄCZNIE W JĘZYKU POLSKIM.
+Masz przeanalizować materiał źródłowy i wygenerować wynik KOŃCOWY WYŁĄCZNIE w języku {out_lang_name}.
 
-To znaczy:
-- analysis.viralMechanism ma być po polsku
-- analysis.emotionalTrigger ma być po polsku
-- analysis.hookSecret ma być po polsku
-- wszystkie fields w variants mają być po polsku
-- wszystkie fields w platforms.youtube mają być po polsku
-- wszystkie fields w platforms.tiktok mają być po polsku
-- wszystkie fields w platforms.linkedin mają być po polsku
+To bardzo ważne:
+- materiał źródłowy może być w innym języku
+- ale cały wynik końcowy ma być tylko w języku {out_lang_name}
+- dotyczy to wszystkich pól:
+  - analysis.viralMechanism
+  - analysis.emotionalTrigger
+  - analysis.hookSecret
+  - variants[].style
+  - variants[].styleDesc
+  - variants[].hook
+  - variants[].cta
+  - variants[].script
+  - platforms.youtube.title
+  - platforms.youtube.description
+  - platforms.youtube.tags
+  - platforms.youtube.estimatedDuration
+  - platforms.tiktok.title
+  - platforms.tiktok.shortScript
+  - platforms.tiktok.hook
+  - platforms.tiktok.cta
+  - platforms.tiktok.tags
+  - platforms.linkedin.title
+  - platforms.linkedin.post
+  - platforms.linkedin.hook
+  - platforms.linkedin.cta
+  - platforms.linkedin.tags
 
-NIE używaj języka angielskiego w odpowiedzi, chyba że pojawia się jako pojedyncza nazwa własna.
-NIE tłumacz nazw własnych, ale cały opis, hooki, CTA, skrypty i analizy mają być po polsku.
+Jeżeli materiał źródłowy jest po angielsku, niemiecku, hiszpańsku, francusku lub włosku, najpierw go zrozum, a potem przygotuj wynik końcowy wyłącznie w języku {out_lang_name}.
 
 DANE:
-- Tytuł: {title}
+- Tytuł materiału: {title}
 - Autor: {channel}
-- Język oryginału: {src_lang}
+- Język materiału źródłowego: {src_lang}
+- Język końcowego wyniku: {output_lang}
 - Nisza docelowa: {niche}
 
 {source_block}
 
 Wypełnij wszystkie pola.
-Pisz krótko, konkretnie i naturalnie.
+Pisz naturalnie, marketingowo i konkretnie.
 
 WYMAGANIA DŁUGOŚCI:
 - analysis: krótko
@@ -448,12 +437,6 @@ WYMAGANIA DŁUGOŚCI:
 - youtube.description: 40-70 słów
 - tiktok.shortScript: 60-90 słów
 - linkedin.post: 70-110 słów
-
-Dodatkowo:
-- style oraz styleDesc też mają być po polsku
-- hook ma być po polsku
-- cta ma być po polsku
-- title ma być po polsku, jeśli nie jest nazwą własną
 """
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
