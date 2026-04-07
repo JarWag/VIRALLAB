@@ -212,7 +212,7 @@ def youtube_transcript():
         if not full_text:
             return jsonify({"error": "Brak dostępnych napisów dla tego filmu"}), 404
 
-        full_text = full_text[:7000]
+        full_text = full_text[:6000]
 
         return jsonify({
             "transcript": full_text,
@@ -392,14 +392,14 @@ def generate_script():
         channel = (video.get("channel") or video.get("author") or "").strip()
 
         if transcript and transcript.strip():
-            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:6000]}"
+            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:5000]}"
         else:
             fallback_parts = []
 
             if description:
-                fallback_parts.append(f"OPIS FILMU:\n{description[:900]}")
+                fallback_parts.append(f"OPIS FILMU:\n{description[:800]}")
             if tags:
-                fallback_parts.append(f"TAGI:\n{', '.join(tags[:10])}")
+                fallback_parts.append(f"TAGI:\n{', '.join(tags[:8])}")
             if title:
                 fallback_parts.append(f"TYTUŁ:\n{title}")
             if channel:
@@ -425,29 +425,15 @@ ORYGINALNY FILM:
 
 {source_block}
 
-Zwróć WYŁĄCZNIE poprawny JSON zgodny z tym schematem:
-- analysis: viralMechanism, emotionalTrigger, hookSecret
-- variants: 3 elementy
-- platforms: youtube, tiktok, linkedin
-
-Wymagania:
-- variant 1 = Emocjonalny
-- variant 2 = Edukacyjny
-- variant 3 = Prowokacyjny
-- każdy script: 180-260 słów
-- youtube.description: 60-100 słów
-- tiktok.shortScript: 80-130 słów
-- linkedin.post: 100-150 słów
-- żadnego markdownu, żadnych bloków ```, żadnych komentarzy
-
-Wypełnij wszystkie pola.
+Wypełnij wszystkie pola zgodnie ze schematem.
+Pisz konkretnie, naturalnie po polsku i bez komentarzy.
 """
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
         response = client.messages.parse(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1800,
+            model="claude-sonnet-4-6",
+            max_tokens=1600,
             messages=[{"role": "user", "content": prompt}],
             output_format=GenerateResponse,
         )
