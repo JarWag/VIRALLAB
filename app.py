@@ -9,6 +9,7 @@ import anthropic
 import requests
 import json
 import os
+import re
 
 # Wczytaj klucze z pliku .env
 try:
@@ -555,40 +556,37 @@ Odpowiedz TYLKO JSON bez markdown:
 }}"""
 
         client = anthropic.Anthropic(api_key=ant_key)
-        message = client.messages.create(
+                message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=2200,
             messages=[{"role": "user", "content": prompt}]
         )
 
-       raw = message.content[0].text if message.content else ""
-clean = raw.replace("```json", "").replace("```", "").strip()
+        raw = message.content[0].text if message.content else ""
+        clean = raw.replace("```json", "").replace("```", "").strip()
 
-try:
-    parsed = json.loads(clean)
-    return jsonify(parsed)
-except Exception:
-    pass
+        try:
+            parsed = json.loads(clean)
+            return jsonify(parsed)
+        except Exception:
+            pass
 
-# Próba wyciągnięcia JSON-a z dłuższej odpowiedzi
-try:
-    match = re.search(r"\{.*\}", clean, re.DOTALL)
-    if match:
-        parsed = json.loads(match.group(0))
-        return jsonify(parsed)
-except Exception:
-    pass
+        try:
+            match = re.search(r"\{.*\}", clean, re.DOTALL)
+            if match:
+                parsed = json.loads(match.group(0))
+                return jsonify(parsed)
+        except Exception:
+            pass
 
-return jsonify({
-    "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
-    "raw": clean[:2000]
-}), 500
+        return jsonify({
+            "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
+            "raw": clean[:2000]
+        }), 500
 
     except Exception as e:
         print("GENERATE ERROR:", str(e))
         return jsonify({"error": f"Błąd generowania: {str(e)}"}), 500
-
-
 if __name__ == "__main__":
     print("\n🚀 ViralLab uruchomiony lokalnie")
     print(f" YouTube API: {'✓' if YOUTUBE_API_KEY else '✗ BRAK'}")
