@@ -14,6 +14,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(255,58,58,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
 .wrap{max-width:760px;margin:0 auto;padding:24px 16px 120px;position:relative;z-index:1}
 .hdr{margin-bottom:20px;animation:up .4s ease both}
+.langbar{display:flex;justify-content:flex-end;margin-bottom:14px}
+.langbox{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:8px 10px}
+.langbox label{font-size:12px;color:var(--muted2);font-weight:500;white-space:nowrap}
+.langbox select{min-width:170px;padding:10px 34px 10px 12px;font-size:13px;border-radius:10px}
 .hdr-top{display:flex;align-items:center;gap:12px;margin-bottom:4px}
 .logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#ff3a3a,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .logo-text{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1}
@@ -122,34 +126,48 @@ select option{background:#12151f}
 <div class="wrap">
 
 <div class="hdr">
+  <div class="langbar">
+    <div class="langbox">
+      <label for="uiLang">Language</label>
+      <select id="uiLang">
+        <option value="en">🇺🇸 English</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="pl">🇵🇱 Polski</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="it">🇮🇹 Italiano</option>
+      </select>
+    </div>
+  </div>
+
   <div class="hdr-top">
     <div class="logo">🔥</div>
     <div class="logo-text">Viral<em>Lab</em></div>
   </div>
-  <div class="hdr-sub">Twórz wersje viralowego contentu w wybranym języku</div>
+  <div class="hdr-sub" id="hdrSub">Twórz wersje viralowego contentu w wybranym języku</div>
 </div>
 
 <div class="psw">
   <button class="psw-btn active" id="psw-yt" onclick="switchP('youtube')">
-    <span class="psw-icon">▶️</span><span>YouTube</span>
+    <span class="psw-icon">▶️</span><span id="pswYtText">YouTube</span>
   </button>
   <button class="psw-btn" id="psw-tt" onclick="switchP('tiktok')">
-    <span class="psw-icon">🎵</span><span>TikTok</span>
+    <span class="psw-icon">🎵</span><span id="pswTtText">TikTok</span>
   </button>
 </div>
 
 <div id="panel-yt">
   <div class="card">
-    <div class="clabel">🔍 Wyszukiwanie YouTube</div>
+    <div class="clabel" id="ytSearchSectionLabel">🔍 Wyszukiwanie YouTube</div>
 
     <div class="fg">
-      <label>Hasło lub #tag</label>
+      <label id="ytQueryLabel" for="ytQ">Hasło lub #tag</label>
       <input type="text" id="ytQ" placeholder="np. rozwój osobisty" onkeydown="if(event.key==='Enter')ytSearch()">
     </div>
 
     <div class="g2">
       <div class="fg">
-        <label>Język materiału</label>
+        <label id="ytSourceLangLabel" for="ytLang">Język materiału</label>
         <select id="ytLang">
           <option value="pl">🇵🇱 Polski</option>
           <option value="en" selected>🇺🇸 English</option>
@@ -161,7 +179,7 @@ select option{background:#12151f}
       </div>
 
       <div class="fg">
-        <label>Język wyniku</label>
+        <label id="ytOutputLangLabel" for="ytOutputLang">Język wyniku</label>
         <select id="ytOutputLang">
           <option value="pl" selected>🇵🇱 Polski</option>
           <option value="en">🇺🇸 English</option>
@@ -175,31 +193,17 @@ select option{background:#12151f}
 
     <div class="g3">
       <div class="fg">
-        <label>Nisza</label>
-        <select id="ytNiche">
-          <option value="ogólna">Ogólna</option>
-          <option value="finanse osobiste">💰 Finanse</option>
-          <option value="zdrowie i fitness">🏃 Fitness</option>
-          <option value="jedzenie i gotowanie">🍕 Jedzenie</option>
-          <option value="biznes i przedsiębiorczość">📈 Biznes</option>
-          <option value="technologia i AI">💻 Tech/AI</option>
-          <option value="podróże">✈️ Podróże</option>
-          <option value="edukacja">📚 Edukacja</option>
-          <option value="motoryzacja">🚗 Moto</option>
-        </select>
+        <label id="ytNicheLabel" for="ytNiche">Nisza</label>
+        <select id="ytNiche"></select>
       </div>
 
       <div class="fg">
-        <label>Sortuj</label>
-        <select id="ytSort">
-          <option value="viewCount" selected>Wyświetlenia ↓</option>
-          <option value="relevance">Trafność</option>
-          <option value="date">Najnowsze</option>
-        </select>
+        <label id="ytSortLabel" for="ytSort">Sortuj</label>
+        <select id="ytSort"></select>
       </div>
 
       <div class="fg">
-        <label>Wyników</label>
+        <label id="ytMaxLabel" for="ytMax">Wyników</label>
         <select id="ytMax">
           <option value="6">6</option>
           <option value="9" selected>9</option>
@@ -209,7 +213,7 @@ select option{background:#12151f}
     </div>
 
     <button class="btn btn-primary" id="ytSearchBtn" onclick="ytSearch()" style="margin-top:4px">
-      <div class="spinner"></div><span class="btn-txt">🔍 Szukaj filmów</span>
+      <div class="spinner"></div><span class="btn-txt" id="ytSearchBtnText">🔍 Szukaj filmów</span>
     </button>
 
     <div class="alert alert-err" id="ytErr"></div>
@@ -228,16 +232,16 @@ select option{background:#12151f}
 
 <div id="panel-tt" style="display:none">
   <div class="card">
-    <div class="clabel">🎵 Wyszukiwanie TikTok</div>
+    <div class="clabel" id="ttSearchSectionLabel">🎵 Wyszukiwanie TikTok</div>
 
     <div class="fg">
-      <label>Hasło lub #tag</label>
+      <label id="ttQueryLabel" for="ttQ">Hasło lub #tag</label>
       <input type="text" id="ttQ" placeholder="np. rozwój osobisty lub #motywacja" onkeydown="if(event.key==='Enter')ttSearch()">
     </div>
 
     <div class="g2">
       <div class="fg">
-        <label>Język materiału</label>
+        <label id="ttSourceLangLabel" for="ttLang">Język materiału</label>
         <select id="ttLang">
           <option value="pl">🇵🇱 Polski</option>
           <option value="en" selected>🇺🇸 English</option>
@@ -249,7 +253,7 @@ select option{background:#12151f}
       </div>
 
       <div class="fg">
-        <label>Język wyniku</label>
+        <label id="ttOutputLangLabel" for="ttOutputLang">Język wyniku</label>
         <select id="ttOutputLang">
           <option value="pl" selected>🇵🇱 Polski</option>
           <option value="en">🇺🇸 English</option>
@@ -263,22 +267,12 @@ select option{background:#12151f}
 
     <div class="g2">
       <div class="fg">
-        <label>Nisza</label>
-        <select id="ttNiche">
-          <option value="ogólna">Ogólna</option>
-          <option value="finanse osobiste">💰 Finanse</option>
-          <option value="zdrowie i fitness">🏃 Fitness</option>
-          <option value="jedzenie i gotowanie">🍕 Jedzenie</option>
-          <option value="biznes i przedsiębiorczość">📈 Biznes</option>
-          <option value="technologia i AI">💻 Tech/AI</option>
-          <option value="podróże">✈️ Podróże</option>
-          <option value="edukacja">📚 Edukacja</option>
-          <option value="motoryzacja">🚗 Moto</option>
-        </select>
+        <label id="ttNicheLabel" for="ttNiche">Nisza</label>
+        <select id="ttNiche"></select>
       </div>
 
       <div class="fg">
-        <label>Wyników</label>
+        <label id="ttMaxLabel" for="ttMax">Wyników</label>
         <select id="ttMax">
           <option value="6">6</option>
           <option value="9" selected>9</option>
@@ -288,7 +282,7 @@ select option{background:#12151f}
     </div>
 
     <button class="btn btn-tiktok" id="ttSearchBtn" onclick="ttSearch()" style="margin-top:4px">
-      <div class="spinner"></div><span class="btn-txt">🎵 Szukaj na TikToku</span>
+      <div class="spinner"></div><span class="btn-txt" id="ttSearchBtnText">🎵 Szukaj na TikToku</span>
     </button>
 
     <div class="alert alert-err" id="ttErr"></div>
@@ -326,7 +320,7 @@ select option{background:#12151f}
 
 <div class="sticky" id="stickyGen">
   <button class="btn btn-primary" id="genBtn" onclick="generateScript()" disabled>
-    <div class="spinner"></div><span class="btn-txt">🌍 Generuj skrypty</span>
+    <div class="spinner"></div><span class="btn-txt" id="genBtnText">🌍 Generuj skrypty</span>
   </button>
 </div>
 
@@ -334,156 +328,464 @@ select option{background:#12151f}
 
 <script>
 const API = "";
-let selVideo = null, transcript = "", gdata = {}, activeV = 1, curP = "youtube";
+let selVideo = null, transcript = "", gdata = {}, activeV = 1, curP = "youtube", uiLang = "en";
 const C = {1:'var(--red)',2:'var(--blue)',3:'var(--orange)'};
 
-const UI = {
+const I18N = {
   pl: {
-    viralAnalysis: '🔬 Analiza wiralności',
-    scriptVariants: '📜 3 warianty skryptu',
-    platformVersions: '📱 Wersje na platformy',
-    viralMechanism: 'Mechanizm wiralny',
-    emotionalTrigger: 'Trigger emocjonalny',
-    hookSecret: 'Sekret pierwszych 3 sek.',
-    variant: 'Wariant',
-    hook: '🎣 Hook',
-    script: '📜 Skrypt',
-    cta: '📣 Call to Action',
-    copy: '📋 Kopiuj',
-    copied: '✓ Skopiowano!',
-    copiedVariant: '✓ Skopiowano wariant',
-    title: 'TYTUŁ:',
-    content: 'TREŚĆ:',
-    tags: 'TAGI:',
-    estimatedDuration: '⏱ Czas:',
-    youtubeResults: '📊 Wyniki',
-    tiktokResults: '🎵 Wyniki TikTok',
-    films: 'filmów'
+    pageTitle: "ViralLab",
+    appSubtitle: "Twórz wersje viralowego contentu w wybranym języku",
+    youtube: "YouTube",
+    tiktok: "TikTok",
+    ytSearchSection: "🔍 Wyszukiwanie YouTube",
+    ttSearchSection: "🎵 Wyszukiwanie TikTok",
+    queryLabel: "Hasło lub #tag",
+    ytPlaceholder: "np. rozwój osobisty",
+    ttPlaceholder: "np. rozwój osobisty lub #motywacja",
+    sourceLanguage: "Język materiału",
+    outputLanguage: "Język wyniku",
+    niche: "Nisza",
+    sort: "Sortuj",
+    resultsCount: "Wyników",
+    searchVideos: "🔍 Szukaj filmów",
+    searchTikTok: "🎵 Szukaj na TikToku",
+    results: "📊 Wyniki",
+    tiktokResults: "🎵 Wyniki TikTok",
+    films: "filmów",
+    viralAnalysis: "🔬 Analiza wiralności",
+    scriptVariants: "📜 3 warianty skryptu",
+    platformVersions: "📱 Wersje na platformy",
+    viralMechanism: "Mechanizm wiralny",
+    emotionalTrigger: "Trigger emocjonalny",
+    hookSecret: "Sekret pierwszych 3 sek.",
+    variant: "Wariant",
+    hook: "🎣 Hook",
+    script: "📜 Skrypt",
+    cta: "📣 Call to Action",
+    copy: "📋 Kopiuj",
+    copied: "✓ Skopiowano!",
+    copiedVariant: "✓ Skopiowano wariant",
+    title: "TYTUŁ:",
+    content: "TREŚĆ:",
+    tags: "TAGI:",
+    estimatedDuration: "⏱ Czas:",
+    generateScripts: "🌍 Generuj skrypty",
+    choose: "Wybierz →",
+    selected: "✓ Wybrany",
+    noTitle: "Brak tytułu",
+    enterKeyword: "⚠️ Wpisz hasło",
+    enterKeywordOrTag: "⚠️ Wpisz hasło lub #tag",
+    emptyServer: "Serwer zwrócił pustą odpowiedź",
+    htmlServer: "Serwer zwrócił HTML zamiast JSON",
+    invalidJson: "Serwer zwrócił nieprawidłowy JSON",
+    youtubeError: "Błąd YouTube",
+    tiktokError: "Błąd TikTok",
+    generateError: "Błąd generowania",
+    loadingTranscript: "Pobieram transkrypt...",
+    noTranscript: "Brak transkryptu — skrypt powstanie na podstawie opisu filmu.",
+    transcriptFetched: "Transkrypt pobrany ({count} znaków) ✓",
+    transcriptFetchFailed: "Nie udało się pobrać transkryptu — skrypt powstanie na podstawie opisu filmu.",
+    tiktokLoading: "Szukam przez TikTok — może potrwać 10–30 sekund...",
+    videoChosenGenerate: "Film wybrany — kliknij przycisk na dole, aby wygenerować skrypty.",
+    general: "Ogólna",
+    personalFinance: "💰 Finanse",
+    healthFitness: "🏃 Fitness",
+    foodCooking: "🍕 Jedzenie",
+    businessEntrepreneurship: "📈 Biznes",
+    technologyAI: "💻 Tech/AI",
+    travel: "✈️ Podróże",
+    education: "📚 Edukacja",
+    automotive: "🚗 Moto",
+    viewsDesc: "Wyświetlenia ↓",
+    relevance: "Trafność",
+    newest: "Najnowsze",
+    allPlatforms: {
+      youtube: "YouTube",
+      tiktok: "TikTok/Reels",
+      linkedin: "LinkedIn"
+    }
   },
   en: {
-    viralAnalysis: '🔬 Viral analysis',
-    scriptVariants: '📜 3 script variations',
-    platformVersions: '📱 Platform versions',
-    viralMechanism: 'Viral mechanism',
-    emotionalTrigger: 'Emotional trigger',
-    hookSecret: 'First 3 seconds secret',
-    variant: 'Variant',
-    hook: '🎣 Hook',
-    script: '📜 Script',
-    cta: '📣 Call to Action',
-    copy: '📋 Copy',
-    copied: '✓ Copied!',
-    copiedVariant: '✓ Copied variant',
-    title: 'TITLE:',
-    content: 'CONTENT:',
-    tags: 'TAGS:',
-    estimatedDuration: '⏱ Duration:',
-    youtubeResults: '📊 Results',
-    tiktokResults: '🎵 TikTok results',
-    films: 'videos'
+    pageTitle: "ViralLab",
+    appSubtitle: "Create viral content versions in your selected language",
+    youtube: "YouTube",
+    tiktok: "TikTok",
+    ytSearchSection: "🔍 YouTube Search",
+    ttSearchSection: "🎵 TikTok Search",
+    queryLabel: "Keyword or #tag",
+    ytPlaceholder: "e.g. personal growth",
+    ttPlaceholder: "e.g. personal growth or #motivation",
+    sourceLanguage: "Source language",
+    outputLanguage: "Output language",
+    niche: "Niche",
+    sort: "Sort",
+    resultsCount: "Results",
+    searchVideos: "🔍 Search videos",
+    searchTikTok: "🎵 Search TikTok",
+    results: "📊 Results",
+    tiktokResults: "🎵 TikTok results",
+    films: "videos",
+    viralAnalysis: "🔬 Viral analysis",
+    scriptVariants: "📜 3 script variants",
+    platformVersions: "📱 Platform versions",
+    viralMechanism: "Viral mechanism",
+    emotionalTrigger: "Emotional trigger",
+    hookSecret: "First 3 seconds secret",
+    variant: "Variant",
+    hook: "🎣 Hook",
+    script: "📜 Script",
+    cta: "📣 Call to Action",
+    copy: "📋 Copy",
+    copied: "✓ Copied!",
+    copiedVariant: "✓ Copied variant",
+    title: "TITLE:",
+    content: "CONTENT:",
+    tags: "TAGS:",
+    estimatedDuration: "⏱ Duration:",
+    generateScripts: "🌍 Generate scripts",
+    choose: "Choose →",
+    selected: "✓ Selected",
+    noTitle: "No title",
+    enterKeyword: "⚠️ Enter a keyword",
+    enterKeywordOrTag: "⚠️ Enter a keyword or #tag",
+    emptyServer: "Server returned an empty response",
+    htmlServer: "Server returned HTML instead of JSON",
+    invalidJson: "Server returned invalid JSON",
+    youtubeError: "YouTube error",
+    tiktokError: "TikTok error",
+    generateError: "Generation error",
+    loadingTranscript: "Fetching transcript...",
+    noTranscript: "No transcript available — the script will be created from the video description.",
+    transcriptFetched: "Transcript fetched ({count} characters) ✓",
+    transcriptFetchFailed: "Could not fetch transcript — the script will be created from the video description.",
+    tiktokLoading: "Searching via TikTok — this may take 10–30 seconds...",
+    videoChosenGenerate: "Video selected — click the button below to generate scripts.",
+    general: "General",
+    personalFinance: "💰 Finance",
+    healthFitness: "🏃 Fitness",
+    foodCooking: "🍕 Food",
+    businessEntrepreneurship: "📈 Business",
+    technologyAI: "💻 Tech/AI",
+    travel: "✈️ Travel",
+    education: "📚 Education",
+    automotive: "🚗 Auto",
+    viewsDesc: "Views ↓",
+    relevance: "Relevance",
+    newest: "Newest",
+    allPlatforms: {
+      youtube: "YouTube",
+      tiktok: "TikTok/Reels",
+      linkedin: "LinkedIn"
+    }
   },
   de: {
-    viralAnalysis: '🔬 Viralitätsanalyse',
-    scriptVariants: '📜 3 Skriptvarianten',
-    platformVersions: '📱 Plattformversionen',
-    viralMechanism: 'Viraler Mechanismus',
-    emotionalTrigger: 'Emotionaler Trigger',
-    hookSecret: 'Geheimnis der ersten 3 Sekunden',
-    variant: 'Variante',
-    hook: '🎣 Hook',
-    script: '📜 Skript',
-    cta: '📣 Call to Action',
-    copy: '📋 Kopieren',
-    copied: '✓ Kopiert!',
-    copiedVariant: '✓ Variante kopiert',
-    title: 'TITEL:',
-    content: 'INHALT:',
-    tags: 'TAGS:',
-    estimatedDuration: '⏱ Dauer:',
-    youtubeResults: '📊 Ergebnisse',
-    tiktokResults: '🎵 TikTok-Ergebnisse',
-    films: 'Videos'
+    pageTitle: "ViralLab",
+    appSubtitle: "Erstelle virale Content-Versionen in deiner gewählten Sprache",
+    youtube: "YouTube",
+    tiktok: "TikTok",
+    ytSearchSection: "🔍 YouTube-Suche",
+    ttSearchSection: "🎵 TikTok-Suche",
+    queryLabel: "Suchbegriff oder #Tag",
+    ytPlaceholder: "z. B. persönliche Entwicklung",
+    ttPlaceholder: "z. B. persönliche Entwicklung oder #motivation",
+    sourceLanguage: "Quellsprache",
+    outputLanguage: "Ausgabesprache",
+    niche: "Nische",
+    sort: "Sortieren",
+    resultsCount: "Ergebnisse",
+    searchVideos: "🔍 Videos suchen",
+    searchTikTok: "🎵 TikTok durchsuchen",
+    results: "📊 Ergebnisse",
+    tiktokResults: "🎵 TikTok-Ergebnisse",
+    films: "Videos",
+    viralAnalysis: "🔬 Viralitätsanalyse",
+    scriptVariants: "📜 3 Skriptvarianten",
+    platformVersions: "📱 Plattformversionen",
+    viralMechanism: "Viraler Mechanismus",
+    emotionalTrigger: "Emotionaler Trigger",
+    hookSecret: "Geheimnis der ersten 3 Sekunden",
+    variant: "Variante",
+    hook: "🎣 Hook",
+    script: "📜 Skript",
+    cta: "📣 Call to Action",
+    copy: "📋 Kopieren",
+    copied: "✓ Kopiert!",
+    copiedVariant: "✓ Variante kopiert",
+    title: "TITEL:",
+    content: "INHALT:",
+    tags: "TAGS:",
+    estimatedDuration: "⏱ Dauer:",
+    generateScripts: "🌍 Skripte generieren",
+    choose: "Auswählen →",
+    selected: "✓ Ausgewählt",
+    noTitle: "Kein Titel",
+    enterKeyword: "⚠️ Suchbegriff eingeben",
+    enterKeywordOrTag: "⚠️ Suchbegriff oder #Tag eingeben",
+    emptyServer: "Server hat eine leere Antwort zurückgegeben",
+    htmlServer: "Server hat HTML statt JSON zurückgegeben",
+    invalidJson: "Server hat ungültiges JSON zurückgegeben",
+    youtubeError: "YouTube-Fehler",
+    tiktokError: "TikTok-Fehler",
+    generateError: "Generierungsfehler",
+    loadingTranscript: "Transkript wird geladen...",
+    noTranscript: "Kein Transkript verfügbar — das Skript wird anhand der Videobeschreibung erstellt.",
+    transcriptFetched: "Transkript geladen ({count} Zeichen) ✓",
+    transcriptFetchFailed: "Transkript konnte nicht geladen werden — das Skript wird anhand der Videobeschreibung erstellt.",
+    tiktokLoading: "Suche über TikTok — das kann 10–30 Sekunden dauern...",
+    videoChosenGenerate: "Video ausgewählt — klicke unten auf den Button, um Skripte zu generieren.",
+    general: "Allgemein",
+    personalFinance: "💰 Finanzen",
+    healthFitness: "🏃 Fitness",
+    foodCooking: "🍕 Essen",
+    businessEntrepreneurship: "📈 Business",
+    technologyAI: "💻 Tech/KI",
+    travel: "✈️ Reisen",
+    education: "📚 Bildung",
+    automotive: "🚗 Auto",
+    viewsDesc: "Aufrufe ↓",
+    relevance: "Relevanz",
+    newest: "Neueste",
+    allPlatforms: {
+      youtube: "YouTube",
+      tiktok: "TikTok/Reels",
+      linkedin: "LinkedIn"
+    }
   },
   es: {
-    viralAnalysis: '🔬 Análisis de viralidad',
-    scriptVariants: '📜 3 variantes del guion',
-    platformVersions: '📱 Versiones para plataformas',
-    viralMechanism: 'Mecanismo viral',
-    emotionalTrigger: 'Desencadenante emocional',
-    hookSecret: 'Secreto de los primeros 3 segundos',
-    variant: 'Variante',
-    hook: '🎣 Gancho',
-    script: '📜 Guion',
-    cta: '📣 Llamado a la acción',
-    copy: '📋 Copiar',
-    copied: '✓ ¡Copiado!',
-    copiedVariant: '✓ Variante copiada',
-    title: 'TÍTULO:',
-    content: 'CONTENIDO:',
-    tags: 'ETIQUETAS:',
-    estimatedDuration: '⏱ Duración:',
-    youtubeResults: '📊 Resultados',
-    tiktokResults: '🎵 Resultados de TikTok',
-    films: 'videos'
+    pageTitle: "ViralLab",
+    appSubtitle: "Crea versiones de contenido viral en el idioma que elijas",
+    youtube: "YouTube",
+    tiktok: "TikTok",
+    ytSearchSection: "🔍 Búsqueda en YouTube",
+    ttSearchSection: "🎵 Búsqueda en TikTok",
+    queryLabel: "Palabra clave o #tag",
+    ytPlaceholder: "p. ej. crecimiento personal",
+    ttPlaceholder: "p. ej. crecimiento personal o #motivacion",
+    sourceLanguage: "Idioma del contenido",
+    outputLanguage: "Idioma de salida",
+    niche: "Nicho",
+    sort: "Ordenar",
+    resultsCount: "Resultados",
+    searchVideos: "🔍 Buscar videos",
+    searchTikTok: "🎵 Buscar en TikTok",
+    results: "📊 Resultados",
+    tiktokResults: "🎵 Resultados de TikTok",
+    films: "videos",
+    viralAnalysis: "🔬 Análisis de viralidad",
+    scriptVariants: "📜 3 variantes del guion",
+    platformVersions: "📱 Versiones por plataforma",
+    viralMechanism: "Mecanismo viral",
+    emotionalTrigger: "Desencadenante emocional",
+    hookSecret: "Secreto de los primeros 3 segundos",
+    variant: "Variante",
+    hook: "🎣 Gancho",
+    script: "📜 Guion",
+    cta: "📣 Llamado a la acción",
+    copy: "📋 Copiar",
+    copied: "✓ ¡Copiado!",
+    copiedVariant: "✓ Variante copiada",
+    title: "TÍTULO:",
+    content: "CONTENIDO:",
+    tags: "ETIQUETAS:",
+    estimatedDuration: "⏱ Duración:",
+    generateScripts: "🌍 Generar guiones",
+    choose: "Elegir →",
+    selected: "✓ Seleccionado",
+    noTitle: "Sin título",
+    enterKeyword: "⚠️ Escribe una palabra clave",
+    enterKeywordOrTag: "⚠️ Escribe una palabra clave o #tag",
+    emptyServer: "El servidor devolvió una respuesta vacía",
+    htmlServer: "El servidor devolvió HTML en lugar de JSON",
+    invalidJson: "El servidor devolvió JSON no válido",
+    youtubeError: "Error de YouTube",
+    tiktokError: "Error de TikTok",
+    generateError: "Error al generar",
+    loadingTranscript: "Cargando transcripción...",
+    noTranscript: "No hay transcripción disponible — el guion se creará a partir de la descripción del video.",
+    transcriptFetched: "Transcripción cargada ({count} caracteres) ✓",
+    transcriptFetchFailed: "No se pudo cargar la transcripción — el guion se creará a partir de la descripción del video.",
+    tiktokLoading: "Buscando en TikTok — puede tardar entre 10 y 30 segundos...",
+    videoChosenGenerate: "Video seleccionado — pulsa el botón inferior para generar los guiones.",
+    general: "General",
+    personalFinance: "💰 Finanzas",
+    healthFitness: "🏃 Fitness",
+    foodCooking: "🍕 Comida",
+    businessEntrepreneurship: "📈 Negocios",
+    technologyAI: "💻 Tech/IA",
+    travel: "✈️ Viajes",
+    education: "📚 Educación",
+    automotive: "🚗 Motor",
+    viewsDesc: "Vistas ↓",
+    relevance: "Relevancia",
+    newest: "Más recientes",
+    allPlatforms: {
+      youtube: "YouTube",
+      tiktok: "TikTok/Reels",
+      linkedin: "LinkedIn"
+    }
   },
   fr: {
-    viralAnalysis: '🔬 Analyse de viralité',
-    scriptVariants: '📜 3 variantes de script',
-    platformVersions: '📱 Versions par plateforme',
-    viralMechanism: 'Mécanisme viral',
-    emotionalTrigger: 'Déclencheur émotionnel',
-    hookSecret: 'Secret des 3 premières secondes',
-    variant: 'Variante',
-    hook: '🎣 Accroche',
-    script: '📜 Script',
-    cta: '📣 Appel à l’action',
-    copy: '📋 Copier',
-    copied: '✓ Copié !',
-    copiedVariant: '✓ Variante copiée',
-    title: 'TITRE :',
-    content: 'CONTENU :',
-    tags: 'TAGS :',
-    estimatedDuration: '⏱ Durée :',
-    youtubeResults: '📊 Résultats',
-    tiktokResults: '🎵 Résultats TikTok',
-    films: 'vidéos'
+    pageTitle: "ViralLab",
+    appSubtitle: "Crée des versions de contenu viral dans la langue de ton choix",
+    youtube: "YouTube",
+    tiktok: "TikTok",
+    ytSearchSection: "🔍 Recherche YouTube",
+    ttSearchSection: "🎵 Recherche TikTok",
+    queryLabel: "Mot-clé ou #tag",
+    ytPlaceholder: "ex. développement personnel",
+    ttPlaceholder: "ex. développement personnel ou #motivation",
+    sourceLanguage: "Langue source",
+    outputLanguage: "Langue du résultat",
+    niche: "Niche",
+    sort: "Trier",
+    resultsCount: "Résultats",
+    searchVideos: "🔍 Rechercher des vidéos",
+    searchTikTok: "🎵 Rechercher sur TikTok",
+    results: "📊 Résultats",
+    tiktokResults: "🎵 Résultats TikTok",
+    films: "vidéos",
+    viralAnalysis: "🔬 Analyse de viralité",
+    scriptVariants: "📜 3 variantes de script",
+    platformVersions: "📱 Versions par plateforme",
+    viralMechanism: "Mécanisme viral",
+    emotionalTrigger: "Déclencheur émotionnel",
+    hookSecret: "Secret des 3 premières secondes",
+    variant: "Variante",
+    hook: "🎣 Accroche",
+    script: "📜 Script",
+    cta: "📣 Appel à l’action",
+    copy: "📋 Copier",
+    copied: "✓ Copié !",
+    copiedVariant: "✓ Variante copiée",
+    title: "TITRE :",
+    content: "CONTENU :",
+    tags: "TAGS :",
+    estimatedDuration: "⏱ Durée :",
+    generateScripts: "🌍 Générer les scripts",
+    choose: "Choisir →",
+    selected: "✓ Sélectionné",
+    noTitle: "Sans titre",
+    enterKeyword: "⚠️ Saisis un mot-clé",
+    enterKeywordOrTag: "⚠️ Saisis un mot-clé ou un #tag",
+    emptyServer: "Le serveur a renvoyé une réponse vide",
+    htmlServer: "Le serveur a renvoyé du HTML au lieu de JSON",
+    invalidJson: "Le serveur a renvoyé un JSON invalide",
+    youtubeError: "Erreur YouTube",
+    tiktokError: "Erreur TikTok",
+    generateError: "Erreur de génération",
+    loadingTranscript: "Chargement de la transcription...",
+    noTranscript: "Aucune transcription disponible — le script sera créé à partir de la description de la vidéo.",
+    transcriptFetched: "Transcription récupérée ({count} caractères) ✓",
+    transcriptFetchFailed: "Impossible de récupérer la transcription — le script sera créé à partir de la description de la vidéo.",
+    tiktokLoading: "Recherche via TikTok — cela peut prendre 10 à 30 secondes...",
+    videoChosenGenerate: "Vidéo sélectionnée — clique sur le bouton ci-dessous pour générer les scripts.",
+    general: "Générale",
+    personalFinance: "💰 Finance",
+    healthFitness: "🏃 Fitness",
+    foodCooking: "🍕 Cuisine",
+    businessEntrepreneurship: "📈 Business",
+    technologyAI: "💻 Tech/IA",
+    travel: "✈️ Voyages",
+    education: "📚 Éducation",
+    automotive: "🚗 Auto",
+    viewsDesc: "Vues ↓",
+    relevance: "Pertinence",
+    newest: "Plus récentes",
+    allPlatforms: {
+      youtube: "YouTube",
+      tiktok: "TikTok/Reels",
+      linkedin: "LinkedIn"
+    }
   },
   it: {
-    viralAnalysis: '🔬 Analisi della viralità',
-    scriptVariants: '📜 3 varianti di script',
-    platformVersions: '📱 Versioni per piattaforma',
-    viralMechanism: 'Meccanismo virale',
-    emotionalTrigger: 'Trigger emotivo',
-    hookSecret: 'Segreto dei primi 3 secondi',
-    variant: 'Variante',
-    hook: '🎣 Hook',
-    script: '📜 Script',
-    cta: '📣 Call to Action',
-    copy: '📋 Copia',
-    copied: '✓ Copiato!',
-    copiedVariant: '✓ Variante copiata',
-    title: 'TITOLO:',
-    content: 'CONTENUTO:',
-    tags: 'TAG:',
-    estimatedDuration: '⏱ Durata:',
-    youtubeResults: '📊 Risultati',
-    tiktokResults: '🎵 Risultati TikTok',
-    films: 'video'
+    pageTitle: "ViralLab",
+    appSubtitle: "Crea versioni di contenuti virali nella lingua che scegli",
+    youtube: "YouTube",
+    tiktok: "TikTok",
+    ytSearchSection: "🔍 Ricerca YouTube",
+    ttSearchSection: "🎵 Ricerca TikTok",
+    queryLabel: "Parola chiave o #tag",
+    ytPlaceholder: "es. crescita personale",
+    ttPlaceholder: "es. crescita personale o #motivazione",
+    sourceLanguage: "Lingua del contenuto",
+    outputLanguage: "Lingua del risultato",
+    niche: "Nicchia",
+    sort: "Ordina",
+    resultsCount: "Risultati",
+    searchVideos: "🔍 Cerca video",
+    searchTikTok: "🎵 Cerca su TikTok",
+    results: "📊 Risultati",
+    tiktokResults: "🎵 Risultati TikTok",
+    films: "video",
+    viralAnalysis: "🔬 Analisi della viralità",
+    scriptVariants: "📜 3 varianti di script",
+    platformVersions: "📱 Versioni per piattaforma",
+    viralMechanism: "Meccanismo virale",
+    emotionalTrigger: "Trigger emotivo",
+    hookSecret: "Segreto dei primi 3 secondi",
+    variant: "Variante",
+    hook: "🎣 Hook",
+    script: "📜 Script",
+    cta: "📣 Call to Action",
+    copy: "📋 Copia",
+    copied: "✓ Copiato!",
+    copiedVariant: "✓ Variante copiata",
+    title: "TITOLO:",
+    content: "CONTENUTO:",
+    tags: "TAG:",
+    estimatedDuration: "⏱ Durata:",
+    generateScripts: "🌍 Genera script",
+    choose: "Scegli →",
+    selected: "✓ Selezionato",
+    noTitle: "Nessun titolo",
+    enterKeyword: "⚠️ Inserisci una parola chiave",
+    enterKeywordOrTag: "⚠️ Inserisci una parola chiave o un #tag",
+    emptyServer: "Il server ha restituito una risposta vuota",
+    htmlServer: "Il server ha restituito HTML invece di JSON",
+    invalidJson: "Il server ha restituito JSON non valido",
+    youtubeError: "Errore YouTube",
+    tiktokError: "Errore TikTok",
+    generateError: "Errore di generazione",
+    loadingTranscript: "Recupero trascrizione...",
+    noTranscript: "Trascrizione non disponibile — lo script verrà creato dalla descrizione del video.",
+    transcriptFetched: "Trascrizione recuperata ({count} caratteri) ✓",
+    transcriptFetchFailed: "Impossibile recuperare la trascrizione — lo script verrà creato dalla descrizione del video.",
+    tiktokLoading: "Ricerca tramite TikTok — potrebbero volerci 10–30 secondi...",
+    videoChosenGenerate: "Video selezionato — clicca il pulsante in basso per generare gli script.",
+    general: "Generale",
+    personalFinance: "💰 Finanza",
+    healthFitness: "🏃 Fitness",
+    foodCooking: "🍕 Cibo",
+    businessEntrepreneurship: "📈 Business",
+    technologyAI: "💻 Tech/AI",
+    travel: "✈️ Viaggi",
+    education: "📚 Educazione",
+    automotive: "🚗 Auto",
+    viewsDesc: "Visualizzazioni ↓",
+    relevance: "Pertinenza",
+    newest: "Più recenti",
+    allPlatforms: {
+      youtube: "YouTube",
+      tiktok: "TikTok/Reels",
+      linkedin: "LinkedIn"
+    }
   }
 };
 
+function tr(key){
+  return (I18N[uiLang] && I18N[uiLang][key]) || I18N.en[key] || key;
+}
+function trf(key, vars = {}){
+  let s = tr(key);
+  Object.keys(vars).forEach(k => s = s.replace(new RegExp(`\\{${k}\\}`, 'g'), vars[k]));
+  return s;
+}
 function getOutputLang(){
   return curP === 'youtube'
     ? document.getElementById('ytOutputLang').value
     : document.getElementById('ttOutputLang').value;
 }
-
-function t(key){
-  const lang = getOutputLang();
-  return (UI[lang] && UI[lang][key]) || UI.pl[key] || key;
-}
-
-const fN=n=>{n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'mld';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
+const fN=n=>{n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
 const fD=iso=>{if(!iso)return'';const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);if(!m)return'';const h=parseInt(m[1]||0),mn=parseInt(m[2]||0),s=parseInt(m[3]||0);return h?`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${mn}:${String(s).padStart(2,'0')}`};
 const showErr=(id,msg)=>{const e=document.getElementById(id);e.textContent=msg;e.style.display='block'};
 const hideErr=id=>document.getElementById(id).style.display='none';
@@ -491,18 +793,108 @@ const toast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.c
 const setLoad=(id,on)=>{const b=document.getElementById(id);b.disabled=on;on?b.classList.add('loading'):b.classList.remove('loading')};
 const setStatus=(id,type,msg)=>{const el=document.getElementById(id);el.style.display='flex';el.className='ts ts-'+type;const ic={ok:'✅',warn:'⚠️',load:'⏳'};el.innerHTML=`<span class="ts-icon">${ic[type]||''}</span><span>${msg}</span>`};
 
-function refreshStaticUiTexts(){
-  const ytTitle = document.getElementById('ytResultsTitle');
-  const ttTitle = document.getElementById('ttResultsTitle');
-  const analysisTitle = document.getElementById('analysisTitle');
-  const variantsTitle = document.getElementById('variantsTitle');
-  const platformsTitle = document.getElementById('platformsTitle');
+function detectInitialUiLang(){
+  const saved = localStorage.getItem('viralab_ui_lang');
+  if(saved && I18N[saved]) return saved;
+  const nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase().slice(0,2);
+  return I18N[nav] ? nav : 'en';
+}
 
-  if (ytTitle) ytTitle.textContent = t('youtubeResults');
-  if (ttTitle) ttTitle.textContent = t('tiktokResults');
-  if (analysisTitle) analysisTitle.textContent = t('viralAnalysis');
-  if (variantsTitle) variantsTitle.textContent = t('scriptVariants');
-  if (platformsTitle) platformsTitle.textContent = t('platformVersions');
+function fillNicheOptions(){
+  const niches = [
+    {value:'ogólna', text: tr('general')},
+    {value:'finanse osobiste', text: tr('personalFinance')},
+    {value:'zdrowie i fitness', text: tr('healthFitness')},
+    {value:'jedzenie i gotowanie', text: tr('foodCooking')},
+    {value:'biznes i przedsiębiorczość', text: tr('businessEntrepreneurship')},
+    {value:'technologia i AI', text: tr('technologyAI')},
+    {value:'podróże', text: tr('travel')},
+    {value:'edukacja', text: tr('education')},
+    {value:'motoryzacja', text: tr('automotive')}
+  ];
+
+  const yt = document.getElementById('ytNiche');
+  const tt = document.getElementById('ttNiche');
+  const prevYt = yt.value || 'ogólna';
+  const prevTt = tt.value || 'ogólna';
+
+  yt.innerHTML = niches.map(n=>`<option value="${n.value}">${n.text}</option>`).join('');
+  tt.innerHTML = niches.map(n=>`<option value="${n.value}">${n.text}</option>`).join('');
+
+  yt.value = prevYt;
+  tt.value = prevTt;
+}
+
+function fillSortOptions(){
+  const sorts = [
+    {value:'viewCount', text: tr('viewsDesc')},
+    {value:'relevance', text: tr('relevance')},
+    {value:'date', text: tr('newest')}
+  ];
+  const ytSort = document.getElementById('ytSort');
+  const prev = ytSort.value || 'viewCount';
+  ytSort.innerHTML = sorts.map(s=>`<option value="${s.value}">${s.text}</option>`).join('');
+  ytSort.value = prev;
+}
+
+function refreshStaticUiTexts(){
+  document.documentElement.lang = uiLang;
+  document.title = tr('pageTitle');
+
+  document.getElementById('hdrSub').textContent = tr('appSubtitle');
+  document.getElementById('pswYtText').textContent = tr('youtube');
+  document.getElementById('pswTtText').textContent = tr('tiktok');
+
+  document.getElementById('ytSearchSectionLabel').textContent = tr('ytSearchSection');
+  document.getElementById('ttSearchSectionLabel').textContent = tr('ttSearchSection');
+
+  document.getElementById('ytQueryLabel').textContent = tr('queryLabel');
+  document.getElementById('ttQueryLabel').textContent = tr('queryLabel');
+
+  document.getElementById('ytQ').placeholder = tr('ytPlaceholder');
+  document.getElementById('ttQ').placeholder = tr('ttPlaceholder');
+
+  document.getElementById('ytSourceLangLabel').textContent = tr('sourceLanguage');
+  document.getElementById('ttSourceLangLabel').textContent = tr('sourceLanguage');
+  document.getElementById('ytOutputLangLabel').textContent = tr('outputLanguage');
+  document.getElementById('ttOutputLangLabel').textContent = tr('outputLanguage');
+
+  document.getElementById('ytNicheLabel').textContent = tr('niche');
+  document.getElementById('ttNicheLabel').textContent = tr('niche');
+  document.getElementById('ytSortLabel').textContent = tr('sort');
+  document.getElementById('ytMaxLabel').textContent = tr('resultsCount');
+  document.getElementById('ttMaxLabel').textContent = tr('resultsCount');
+
+  document.getElementById('ytSearchBtnText').textContent = tr('searchVideos');
+  document.getElementById('ttSearchBtnText').textContent = tr('searchTikTok');
+  document.getElementById('genBtnText').textContent = tr('generateScripts');
+
+  document.getElementById('ytResultsTitle').textContent = tr('results');
+  document.getElementById('ttResultsTitle').textContent = tr('tiktokResults');
+
+  document.getElementById('analysisTitle').textContent = tr('viralAnalysis');
+  document.getElementById('variantsTitle').textContent = tr('scriptVariants');
+  document.getElementById('platformsTitle').textContent = tr('platformVersions');
+
+  fillNicheOptions();
+  fillSortOptions();
+
+  if(window._ytVids && window._ytVids.length) renderVids('yt', window._ytVids, true);
+  if(window._ttVids && window._ttVids.length) renderVids('tt', window._ttVids, true);
+  if(gdata && Object.keys(gdata).length) renderAll();
+
+  const ytSelected = document.querySelector('#ytGrid .vcard.selected');
+  const ttSelected = document.querySelector('#ttGrid .vcard.tt-selected');
+  if(ytSelected){
+    const idx = ytSelected.id.replace('ytCard','');
+    const btn = document.getElementById('ytSel'+idx);
+    if(btn) btn.textContent = tr('selected');
+  }
+  if(ttSelected){
+    const idx = ttSelected.id.replace('ttCard','');
+    const btn = document.getElementById('ttSel'+idx);
+    if(btn) btn.textContent = tr('selected');
+  }
 }
 
 function switchP(p){
@@ -515,6 +907,7 @@ function switchP(p){
   document.getElementById('psw-tt').classList.toggle('active', p === 'tiktok');
   selVideo = null;
   transcript = "";
+  document.getElementById('genBtn').disabled = true;
   refreshStaticUiTexts();
 }
 
@@ -522,7 +915,7 @@ async function parseResponse(r){
   const text = await r.text();
 
   if (!text || !text.trim()) {
-    if (!r.ok) throw new Error(`Serwer zwrócił pustą odpowiedź (HTTP ${r.status})`);
+    if (!r.ok) throw new Error(`${tr('emptyServer')} (HTTP ${r.status})`);
     return {};
   }
 
@@ -530,15 +923,15 @@ async function parseResponse(r){
     return JSON.parse(text);
   } catch {
     if (text.trim().startsWith("<")) {
-      throw new Error(`Serwer zwrócił HTML zamiast JSON (HTTP ${r.status})`);
+      throw new Error(`${tr('htmlServer')} (HTTP ${r.status})`);
     }
-    throw new Error(`Serwer zwrócił nieprawidłowy JSON (HTTP ${r.status})`);
+    throw new Error(`${tr('invalidJson')} (HTTP ${r.status})`);
   }
 }
 
 async function ytSearch(){
   const q = document.getElementById('ytQ').value.trim();
-  if(!q){showErr('ytErr','⚠️ Wpisz hasło');return}
+  if(!q){showErr('ytErr', tr('enterKeyword'));return}
 
   hideErr('ytErr');
   setLoad('ytSearchBtn', true);
@@ -561,7 +954,7 @@ async function ytSearch(){
     const r = await fetch(`${API}/api/youtube/search?${p}`);
     const d = await parseResponse(r);
 
-    if(!r.ok) throw new Error(d.error || 'Błąd YouTube');
+    if(!r.ok) throw new Error(d.error || tr('youtubeError'));
     if(d.error) throw new Error(d.error);
 
     renderVids('yt', d.videos || []);
@@ -574,31 +967,31 @@ async function ytSearch(){
 
 async function ytSelVid(i){
   document.querySelectorAll('#ytGrid .vcard').forEach(c=>c.classList.remove('selected'));
-  document.querySelectorAll('#ytGrid .vsel').forEach(b=>b.textContent='Wybierz →');
+  document.querySelectorAll('#ytGrid .vsel').forEach(b=>b.textContent = tr('choose'));
   document.getElementById('ytCard'+i).classList.add('selected');
-  document.getElementById('ytSel'+i).textContent='✓ Wybrany';
+  document.getElementById('ytSel'+i).textContent = tr('selected');
 
   selVideo = window._ytVids[i];
   transcript = "";
   document.getElementById('genBtn').disabled = true;
   document.getElementById('scriptSection').style.display = 'none';
   document.getElementById('stickyGen').classList.remove('show');
-  setStatus('ytTsStatus','load','Pobieram transkrypt...');
+  setStatus('ytTsStatus','load', tr('loadingTranscript'));
 
   try{
     const r = await fetch(`${API}/api/youtube/transcript?video_id=${encodeURIComponent(selVideo.id)}&lang=${encodeURIComponent(document.getElementById('ytLang').value)}`);
     const d = await parseResponse(r);
 
     if(!r.ok){
-      setStatus('ytTsStatus','warn',d.error || 'Brak transkryptu — skrypt powstanie na podstawie opisu filmu.');
+      setStatus('ytTsStatus','warn', d.error || tr('noTranscript'));
     }else if(d.error){
-      setStatus('ytTsStatus','warn','Brak transkryptu — skrypt powstanie na podstawie opisu filmu.');
+      setStatus('ytTsStatus','warn', tr('noTranscript'));
     }else{
-      setStatus('ytTsStatus','ok',`Transkrypt pobrany (${d.length || 0} znaków) ✓`);
+      setStatus('ytTsStatus','ok', trf('transcriptFetched', {count: d.length || 0}));
       transcript = d.transcript || "";
     }
   }catch(e){
-    setStatus('ytTsStatus','warn','Nie udało się pobrać transkryptu — skrypt powstanie na podstawie opisu filmu.');
+    setStatus('ytTsStatus','warn', tr('transcriptFetchFailed'));
   }
 
   document.getElementById('genBtn').disabled = false;
@@ -607,7 +1000,7 @@ async function ytSelVid(i){
 
 async function ttSearch(){
   const q = document.getElementById('ttQ').value.trim();
-  if(!q){showErr('ttErr','⚠️ Wpisz hasło lub #tag');return}
+  if(!q){showErr('ttErr', tr('enterKeywordOrTag'));return}
 
   hideErr('ttErr');
   setLoad('ttSearchBtn', true);
@@ -624,7 +1017,7 @@ async function ttSearch(){
     loadInfo = document.createElement('div');
     loadInfo.id = 'apifyLoad';
     loadInfo.className = 'ts ts-load';
-    loadInfo.innerHTML = '<span class="ts-icon">⏳</span><span>Szukam przez TikTok — może potrwać 10–30 sekund...</span>';
+    loadInfo.innerHTML = `<span class="ts-icon">⏳</span><span>${tr('tiktokLoading')}</span>`;
     document.getElementById('panel-tt').appendChild(loadInfo);
 
     const p = new URLSearchParams({
@@ -637,7 +1030,7 @@ async function ttSearch(){
 
     loadInfo?.remove();
 
-    if(!r.ok) throw new Error(d.error || 'Błąd TikTok');
+    if(!r.ok) throw new Error(d.error || tr('tiktokError'));
     if(d.error) throw new Error(d.error);
 
     renderVids('tt', d.videos || []);
@@ -651,18 +1044,18 @@ async function ttSearch(){
 
 function ttSelVid(i){
   document.querySelectorAll('#ttGrid .vcard').forEach(c=>c.classList.remove('tt-selected'));
-  document.querySelectorAll('#ttGrid .vsel').forEach(b=>b.textContent='Wybierz →');
+  document.querySelectorAll('#ttGrid .vsel').forEach(b=>b.textContent = tr('choose'));
   document.getElementById('ttCard'+i).classList.add('tt-selected');
-  document.getElementById('ttSel'+i).textContent='✓ Wybrany';
+  document.getElementById('ttSel'+i).textContent = tr('selected');
   selVideo = window._ttVids[i];
   transcript = "";
-  setStatus('ttSelStatus','ok','Film wybrany — kliknij przycisk na dole, aby wygenerować skrypty.');
+  setStatus('ttSelStatus','ok', tr('videoChosenGenerate'));
   document.getElementById('genBtn').disabled = false;
   document.getElementById('stickyGen').classList.add('show');
   document.getElementById('scriptSection').style.display = 'none';
 }
 
-function renderVids(source, vids){
+function renderVids(source, vids, preserveSelection = false){
   const isYT = source === 'yt';
   const gridId = isYT ? 'ytGrid' : 'ttGrid';
   const metaId = isYT ? 'ytMeta' : 'ttMeta';
@@ -675,17 +1068,26 @@ function renderVids(source, vids){
   const badgeTxt = isYT ? '▶️' : '🎵';
 
   window[storeKey] = vids;
-  document.getElementById(metaId).textContent = vids.length + ' ' + t('films');
+  document.getElementById(metaId).textContent = vids.length + ' ' + tr('films');
 
-  document.getElementById(gridId).innerHTML = vids.map((v,i)=>`
-    <div class="vcard" id="${cardPfx}${i}" onclick="${selFn}(${i})">
+  const selectedId = preserveSelection && selVideo ? selVideo.id : null;
+
+  document.getElementById(gridId).innerHTML = vids.map((v,i)=>{
+    const isSelected = selectedId && v.id === selectedId;
+    const cardClass = isYT
+      ? `vcard${isSelected ? ' selected' : ''}`
+      : `vcard${isSelected ? ' tt-selected' : ''}`;
+    const btnText = isSelected ? tr('selected') : tr('choose');
+
+    return `
+    <div class="${cardClass}" id="${cardPfx}${i}" onclick="${selFn}(${i})">
       <div class="vthumb">
         <img src="${v.thumbnail||''}" loading="lazy" onerror="this.style.display='none'">
         ${v.duration && String(v.duration).startsWith('PT') ? `<span class="vdur">${fD(v.duration)}</span>` : ''}
         ${parseInt(v.views)>50000 ? `<span class="vbadge ${badgeCls}">${badgeTxt} ${fN(v.views)}</span>` : ''}
       </div>
       <div class="vbody">
-        <div class="vtitle">${v.title||'Brak tytułu'}</div>
+        <div class="vtitle">${v.title||tr('noTitle')}</div>
         <div class="vchan">${isYT?'📺':'@'} ${v.channel||v.author||''}</div>
         <div class="vstats">
           <span class="vstat">👁 ${fN(v.views)}</span>
@@ -693,10 +1095,10 @@ function renderVids(source, vids){
           ${v.published ? `<span class="vstat">📅 ${v.published}</span>` : ''}
         </div>
       </div>
-      <button class="vsel" id="${selPfx}${i}">Wybierz →</button>
-    </div>`).join('');
+      <button class="vsel" id="${selPfx}${i}">${btnText}</button>
+    </div>`;
+  }).join('');
 
-  refreshStaticUiTexts();
   document.getElementById(resId).style.display = 'block';
 }
 
@@ -736,7 +1138,7 @@ async function generateScript(){
 
     const d = await parseResponse(r);
 
-    if(!r.ok) throw new Error(d.error || 'Błąd generowania');
+    if(!r.ok) throw new Error(d.error || tr('generateError'));
     if(d.error) throw new Error(d.error);
 
     gdata = d;
@@ -759,13 +1161,11 @@ async function generateScript(){
 }
 
 function renderAll(){
-  refreshStaticUiTexts();
-
   const an = gdata.analysis || {};
   document.getElementById('agrid').innerHTML =
-    `<div class="aitem"><div class="aitem-l">${t('viralMechanism')}</div><div class="aitem-t">${an.viralMechanism||'-'}</div></div>
-     <div class="aitem"><div class="aitem-l">${t('emotionalTrigger')}</div><div class="aitem-t">${an.emotionalTrigger||'-'}</div></div>
-     <div class="aitem"><div class="aitem-l">${t('hookSecret')}</div><div class="aitem-t">${an.hookSecret||'-'}</div></div>`;
+    `<div class="aitem"><div class="aitem-l">${tr('viralMechanism')}</div><div class="aitem-t">${an.viralMechanism||'-'}</div></div>
+     <div class="aitem"><div class="aitem-l">${tr('emotionalTrigger')}</div><div class="aitem-t">${an.emotionalTrigger||'-'}</div></div>
+     <div class="aitem"><div class="aitem-l">${tr('hookSecret')}</div><div class="aitem-t">${an.hookSecret||'-'}</div></div>`;
 
   const vs = gdata.variants || [];
   document.getElementById('vtabs').innerHTML = vs.map(v=>`
@@ -773,25 +1173,31 @@ function renderAll(){
       <span class="vtn" style="color:${C[v.id]}">${v.id}. ${v.style||''}</span>
       <span class="vtd">${v.styleDesc||''}</span>
     </button>`).join('');
-  showV(1);
+  showV(activeV && vs.find(v=>v.id===activeV) ? activeV : 1);
 
   const pl = gdata.platforms || {};
-  const pls = [{k:'youtube',i:'▶️',n:'YouTube'},{k:'tiktok',i:'🎵',n:'TikTok/Reels'},{k:'linkedin',i:'💼',n:'LinkedIn'}];
+  const platformNames = I18N[uiLang].allPlatforms || I18N.en.allPlatforms;
+  const pls = [
+    {k:'youtube',i:'▶️',n:platformNames.youtube},
+    {k:'tiktok',i:'🎵',n:platformNames.tiktok},
+    {k:'linkedin',i:'💼',n:platformNames.linkedin}
+  ];
+
   document.getElementById('pgrid').innerHTML = pls.map(p=>{
     const d = pl[p.k]; if(!d) return '';
     const recV = (gdata.variants || []).find(v=>v.id===d.recommendedVariant);
     const scr = p.k==='tiktok' ? d.shortScript : p.k==='linkedin' ? d.post : '';
     const tags = (d.tags || []).map(tg=>`<span class="tag hot">${tg}</span>`).join('');
     return `<div class="pcard">
-      <div class="pch"><div class="pchn">${p.i} ${p.n}</div>${recV?`<span class="rec">${t('variant')} ${recV.id}</span>`:''}</div>
+      <div class="pch"><div class="pchn">${p.i} ${p.n}</div>${recV?`<span class="rec">${tr('variant')} ${recV.id}</span>`:''}</div>
       <div class="pcb">
         <div class="pct">${d.title||''}</div>
         ${d.hook?`<div class="phook">${d.hook}</div>`:''}
         ${scr?`<div class="pprev">${scr}</div>`:''}
         ${d.cta?`<div class="pcta">${d.cta}</div>`:''}
-        ${d.estimatedDuration?`<div style="font-size:11px;color:var(--muted)">${t('estimatedDuration')} ${d.estimatedDuration}</div>`:''}
+        ${d.estimatedDuration?`<div style="font-size:11px;color:var(--muted)">${tr('estimatedDuration')} ${d.estimatedDuration}</div>`:''}
         <div class="ptags">${tags}</div>
-        <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyPl('${p.k}')">${t('copy')}</button>
+        <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyPl('${p.k}')">${tr('copy')}</button>
       </div>
     </div>`;
   }).join('');
@@ -807,16 +1213,17 @@ function showV(id){
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/\[(.*?)\]/g,'<span style="color:var(--blue);font-size:11px;background:rgba(74,158,255,.1);padding:1px 5px;border-radius:4px">[$1]</span>');
+
   document.getElementById('vcont').innerHTML = `
     <div class="vcwrap">
       <div class="vch">
         <div><div class="vchs" style="color:${C[id]}">${v.id}. ${v.style||''}</div><div class="vchd">${v.styleDesc||''}</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="copyV(${id})">${t('copy')}</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyV(${id})">${tr('copy')}</button>
       </div>
       <div class="vcb">
-        <div><div class="vcs-l">${t('hook')}</div><div class="hook-box">${v.hook||''}</div></div>
-        <div><div class="vcs-l">${t('script')}</div><div class="script-text">${sh}</div></div>
-        <div><div class="vcs-l">${t('cta')}</div><div class="cta-box">${v.cta||''}</div></div>
+        <div><div class="vcs-l">${tr('hook')}</div><div class="hook-box">${v.hook||''}</div></div>
+        <div><div class="vcs-l">${tr('script')}</div><div class="script-text">${sh}</div></div>
+        <div><div class="vcs-l">${tr('cta')}</div><div class="cta-box">${v.cta||''}</div></div>
       </div>
     </div>`;
 }
@@ -824,41 +1231,45 @@ function showV(id){
 function copyV(id){
   const v = (gdata.variants || []).find(v=>v.id===id); if(!v) return;
   navigator.clipboard.writeText([
-    `=== ${t('variant').toUpperCase()} ${v.id}: ${(v.style||'').toUpperCase()} ===`,
+    `=== ${tr('variant').toUpperCase()} ${v.id}: ${(v.style||'').toUpperCase()} ===`,
     '',
-    t('hook'),
+    tr('hook'),
     v.hook || '',
     '',
-    t('script'),
+    tr('script'),
     v.script || '',
     '',
-    t('cta'),
+    tr('cta'),
     v.cta || ''
-  ].join('\n')).then(()=>toast(`${t('copiedVariant')} ${id}!`));
+  ].join('\n')).then(()=>toast(`${tr('copiedVariant')} ${id}!`));
 }
 
 function copyPl(k){
   const d = (gdata.platforms || {})[k]; if(!d) return;
   const l = [`=== ${k.toUpperCase()} ===`,''];
-  if(d.title) l.push(t('title'), d.title, '');
-  if(d.hook) l.push(t('hook'), d.hook, '');
+  if(d.title) l.push(tr('title'), d.title, '');
+  if(d.hook) l.push(tr('hook'), d.hook, '');
   const s = d.shortScript || d.post || '';
-  if(s) l.push(t('content'), s, '');
-  if(d.cta) l.push(t('cta'), d.cta, '');
-  if(d.tags) l.push(t('tags'), (d.tags || []).join(' '));
-  navigator.clipboard.writeText(l.join('\n')).then(()=>toast(t('copied')));
+  if(s) l.push(tr('content'), s, '');
+  if(d.cta) l.push(tr('cta'), d.cta, '');
+  if(d.tags) l.push(tr('tags'), (d.tags || []).join(' '));
+  navigator.clipboard.writeText(l.join('\n')).then(()=>toast(tr('copied')));
 }
 
 document.getElementById('ytOutputLang').addEventListener('change', () => {
-  refreshStaticUiTexts();
   if (gdata && Object.keys(gdata).length) renderAll();
 });
-
 document.getElementById('ttOutputLang').addEventListener('change', () => {
-  refreshStaticUiTexts();
   if (gdata && Object.keys(gdata).length) renderAll();
 });
+document.getElementById('uiLang').addEventListener('change', e => {
+  uiLang = e.target.value;
+  localStorage.setItem('viralab_ui_lang', uiLang);
+  refreshStaticUiTexts();
+});
 
+uiLang = detectInitialUiLang();
+document.getElementById('uiLang').value = uiLang;
 refreshStaticUiTexts();
 </script>
 </body>
