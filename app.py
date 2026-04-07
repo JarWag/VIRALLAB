@@ -415,25 +415,45 @@ def generate_script():
             )
 
         prompt = f"""
-Jesteś ekspertem od viralowego contentu i copywriterem piszącym po polsku.
+Jesteś polskim copywriterem od viral contentu.
+
+Masz stworzyć CAŁY wynik WYŁĄCZNIE W JĘZYKU POLSKIM.
+
+To znaczy:
+- analysis.viralMechanism ma być po polsku
+- analysis.emotionalTrigger ma być po polsku
+- analysis.hookSecret ma być po polsku
+- wszystkie fields w variants mają być po polsku
+- wszystkie fields w platforms.youtube mają być po polsku
+- wszystkie fields w platforms.tiktok mają być po polsku
+- wszystkie fields w platforms.linkedin mają być po polsku
+
+NIE używaj języka angielskiego w odpowiedzi, chyba że pojawia się jako pojedyncza nazwa własna.
+NIE tłumacz nazw własnych, ale cały opis, hooki, CTA, skrypty i analizy mają być po polsku.
 
 DANE:
 - Tytuł: {title}
 - Autor: {channel}
-- Język: {src_lang}
-- Nisza: {niche}
+- Język oryginału: {src_lang}
+- Nisza docelowa: {niche}
 
 {source_block}
 
-Wypełnij wszystkie pola zgodnie ze schematem.
+Wypełnij wszystkie pola.
 Pisz krótko, konkretnie i naturalnie.
 
 WYMAGANIA DŁUGOŚCI:
-- analysis: krótkie
+- analysis: krótko
 - variants[1..3].script: 120-180 słów każdy
 - youtube.description: 40-70 słów
 - tiktok.shortScript: 60-90 słów
 - linkedin.post: 70-110 słów
+
+Dodatkowo:
+- style oraz styleDesc też mają być po polsku
+- hook ma być po polsku
+- cta ma być po polsku
+- title ma być po polsku, jeśli nie jest nazwą własną
 """
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
