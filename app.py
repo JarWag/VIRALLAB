@@ -6,10 +6,10 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import anthropic
 import requests
-import json
 import os
-import re
 import time
+from typing import List
+from pydantic import BaseModel
 
 try:
     from dotenv import load_dotenv
@@ -24,6 +24,62 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY", "")
 APIFY_TOKEN = os.environ.get("APIFY_TOKEN", "")
 RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY", "")
+
+
+# =========================
+# Structured output models
+# =========================
+class Analysis(BaseModel):
+    viralMechanism: str
+    emotionalTrigger: str
+    hookSecret: str
+
+
+class Variant(BaseModel):
+    id: int
+    style: str
+    styleDesc: str
+    hook: str
+    cta: str
+    script: str
+
+
+class YouTubePlatform(BaseModel):
+    recommendedVariant: int
+    title: str
+    description: str
+    tags: List[str]
+    estimatedDuration: str
+
+
+class TikTokPlatform(BaseModel):
+    recommendedVariant: int
+    title: str
+    shortScript: str
+    hook: str
+    cta: str
+    tags: List[str]
+
+
+class LinkedInPlatform(BaseModel):
+    recommendedVariant: int
+    title: str
+    post: str
+    hook: str
+    cta: str
+    tags: List[str]
+
+
+class Platforms(BaseModel):
+    youtube: YouTubePlatform
+    tiktok: TikTokPlatform
+    linkedin: LinkedInPlatform
+
+
+class GenerateResponse(BaseModel):
+    analysis: Analysis
+    variants: List[Variant]
+    platforms: Platforms
 
 
 @app.route("/")
@@ -156,7 +212,7 @@ def youtube_transcript():
         if not full_text:
             return jsonify({"error": "Brak dostępnych napisów dla tego filmu"}), 404
 
-        full_text = full_text[:8000]
+        full_text = full_text[:7000]
 
         return jsonify({
             "transcript": full_text,
@@ -312,39 +368,6 @@ def tiktok_fetch():
 
 
 # =========================
-# HELPER: JSON EXTRACTION
-# =========================
-def try_parse_json_from_text(text: str):
-    text = (text or "").strip()
-    text = text.replace("```json", "").replace("```", "").strip()
-
-    # 1. direct parse
-    try:
-        return json.loads(text)
-    except Exception:
-        pass
-
-    # 2. first { ... last }
-    try:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start != -1 and end > start:
-            return json.loads(text[start:end])
-    except Exception:
-        pass
-
-    # 3. regex fallback
-    try:
-        match = re.search(r"\{.*\}", text, re.DOTALL)
-        if match:
-            return json.loads(match.group(0))
-    except Exception:
-        pass
-
-    return None
-
-
-# =========================
 # GENERATE SCRIPT
 # =========================
 @app.route("/api/generate", methods=["POST"])
@@ -369,14 +392,14 @@ def generate_script():
         channel = (video.get("channel") or video.get("author") or "").strip()
 
         if transcript and transcript.strip():
-            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:7000]}"
+            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:6000]}"
         else:
             fallback_parts = []
 
             if description:
-                fallback_parts.append(f"OPIS FILMU:\n{description[:1000]}")
+                fallback_parts.append(f"OPIS FILMU:\n{description[:900]}")
             if tags:
-                fallback_parts.append(f"TAGI:\n{', '.join(tags[:12])}")
+                fallback_parts.append(f"TAGI:\n{', '.join(tags[:10])}")
             if title:
                 fallback_parts.append(f"TYTUŁ:\n{title}")
             if channel:
@@ -402,92 +425,38 @@ ORYGINALNY FILM:
 
 {source_block}
 
-Przygotuj wynik WYŁĄCZNIE jako poprawny JSON.
-Nie dodawaj żadnego komentarza, markdownu, bloków ``` ani tekstu przed lub po JSON.
+Zwróć WYŁĄCZNIE poprawny JSON zgodny z tym schematem:
+- analysis: viralMechanism, emotionalTrigger, hookSecret
+- variants: 3 elementy
+- platforms: youtube, tiktok, linkedin
 
-Wymagany format:
-{{
-  "analysis": {{
-    "viralMechanism": "2-3 zdania",
-    "emotionalTrigger": "1 zdanie",
-    "hookSecret": "1-2 zdania"
-  }},
-  "variants": [
-    {{
-      "id": 1,
-      "style": "Emocjonalny",
-      "styleDesc": "Osobista historia, emocje, storytelling",
-      "hook": "max 120 znaków",
-      "cta": "krótkie CTA",
-      "script": "250-350 słów"
-    }},
-    {{
-      "id": 2,
-      "style": "Edukacyjny",
-      "styleDesc": "Fakty, dane, wiedza krok po kroku",
-      "hook": "max 120 znaków",
-      "cta": "krótkie CTA",
-      "script": "250-350 słów"
-    }},
-    {{
-      "id": 3,
-      "style": "Prowokacyjny",
-      "styleDesc": "Kontrowersja, zaskoczenie, obalenie mitu",
-      "hook": "max 120 znaków",
-      "cta": "krótkie CTA",
-      "script": "250-350 słów"
-    }}
-  ],
-  "platforms": {{
-    "youtube": {{
-      "recommendedVariant": 1,
-      "title": "max 70 znaków",
-      "description": "80-120 słów",
-      "tags": ["tag1","tag2","tag3","tag4","tag5"],
-      "estimatedDuration": "np. 4-6 minut"
-    }},
-    "tiktok": {{
-      "recommendedVariant": 3,
-      "title": "max 50 znaków",
-      "shortScript": "120-170 słów",
-      "hook": "krótki hook",
-      "cta": "krótkie CTA",
-      "tags": ["#tag1","#tag2","#tag3","#tag4","#tag5"]
-    }},
-    "linkedin": {{
-      "recommendedVariant": 2,
-      "title": "krótki nagłówek",
-      "post": "120-180 słów",
-      "hook": "pierwsze zdanie",
-      "cta": "pytanie do dyskusji",
-      "tags": ["#tag1","#tag2","#tag3"]
-    }}
-  }}
-}}
+Wymagania:
+- variant 1 = Emocjonalny
+- variant 2 = Edukacyjny
+- variant 3 = Prowokacyjny
+- każdy script: 180-260 słów
+- youtube.description: 60-100 słów
+- tiktok.shortScript: 80-130 słów
+- linkedin.post: 100-150 słów
+- żadnego markdownu, żadnych bloków ```, żadnych komentarzy
+
+Wypełnij wszystkie pola.
 """
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-        msg = client.messages.create(
+        response = client.messages.parse(
             model="claude-sonnet-4-20250514",
-            max_tokens=1600,
+            max_tokens=1800,
             messages=[{"role": "user", "content": prompt}],
+            output_format=GenerateResponse,
         )
 
-        raw = msg.content[0].text if msg.content else ""
-        parsed = try_parse_json_from_text(raw)
-
-        if parsed is not None:
-            return jsonify(parsed)
-
-        return jsonify({
-            "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
-            "raw": raw[:2000]
-        }), 500
+        return jsonify(response.parsed_output.model_dump())
 
     except Exception as e:
         print("GENERATE ERROR:", str(e))
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Błąd generowania: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
