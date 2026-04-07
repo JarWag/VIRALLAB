@@ -363,7 +363,14 @@ Struktura JSON:
         )
 
         raw = msg.content[0].text if msg.content else ""
-        clean = raw.replace("```json", "").replace("```", "").strip()
+      clean = raw.strip()
+
+# usuń wszystko przed pierwszym {
+start = clean.find("{")
+end = clean.rfind("}") + 1
+
+if start != -1 and end != -1:
+    clean = clean[start:end]
 
         try:
             return jsonify(json.loads(clean))
