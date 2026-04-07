@@ -64,7 +64,6 @@ def youtube_search():
     max_results_int = max(1, min(max_results_int, 25))
 
     try:
-        # 1. search.list
         search_resp = requests.get(
             "https://www.googleapis.com/youtube/v3/search",
             params={
@@ -95,7 +94,6 @@ def youtube_search():
         if not video_ids:
             return jsonify({"error": "Brak prawidłowych identyfikatorów filmów"}), 404
 
-        # 2. videos.list ze statystykami
         videos_resp = requests.get(
             "https://www.googleapis.com/youtube/v3/videos",
             params={
@@ -314,6 +312,39 @@ def tiktok_fetch():
 
 
 # =========================
+# HELPER: JSON EXTRACTION
+# =========================
+def try_parse_json_from_text(text: str):
+    text = (text or "").strip()
+    text = text.replace("```json", "").replace("```", "").strip()
+
+    # 1. direct parse
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+
+    # 2. first { ... last }
+    try:
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        if start != -1 and end > start:
+            return json.loads(text[start:end])
+    except Exception:
+        pass
+
+    # 3. regex fallback
+    try:
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
+            return json.loads(match.group(0))
+    except Exception:
+        pass
+
+    return None
+
+
+# =========================
 # GENERATE SCRIPT
 # =========================
 @app.route("/api/generate", methods=["POST"])
@@ -338,21 +369,21 @@ def generate_script():
         channel = (video.get("channel") or video.get("author") or "").strip()
 
         if transcript and transcript.strip():
-            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:8000]}"
+            source_block = f"PEŁNY TRANSKRYPT:\n{transcript.strip()[:7000]}"
         else:
             fallback_parts = []
 
             if description:
-                fallback_parts.append(f"OPIS FILMU:\n{description[:1200]}")
+                fallback_parts.append(f"OPIS FILMU:\n{description[:1000]}")
             if tags:
-                fallback_parts.append(f"TAGI:\n{', '.join(tags[:15])}")
+                fallback_parts.append(f"TAGI:\n{', '.join(tags[:12])}")
             if title:
                 fallback_parts.append(f"TYTUŁ:\n{title}")
             if channel:
                 fallback_parts.append(f"AUTOR/KANAŁ:\n{channel}")
 
             if not fallback_parts:
-                fallback_parts.append("Brak transkryptu, opisu i tagów. Oprzyj się na samych metadanych filmu.")
+                fallback_parts.append("Brak transkryptu, opisu i tagów. Oprzyj się na metadanych filmu.")
 
             source_block = (
                 "BRAK DOSTĘPNEGO TRANSKRYPTU. "
@@ -361,7 +392,7 @@ def generate_script():
             )
 
         prompt = f"""
-Jesteś ekspertem od viralowego contentu i copywriterem z 15-letnim doświadczeniem w Polsce.
+Jesteś ekspertem od viralowego contentu i copywriterem piszącym po polsku.
 
 ORYGINALNY FILM:
 - Tytuł: {title}
@@ -371,44 +402,67 @@ ORYGINALNY FILM:
 
 {source_block}
 
-Na podstawie materiału przygotuj analizę i 3 warianty polskiego skryptu.
-
-Zwróć WYŁĄCZNIE poprawny JSON.
+Przygotuj wynik WYŁĄCZNIE jako poprawny JSON.
 Nie dodawaj żadnego komentarza, markdownu, bloków ``` ani tekstu przed lub po JSON.
 
-Struktura JSON:
+Wymagany format:
 {{
   "analysis": {{
-    "viralMechanism": "",
-    "emotionalTrigger": "",
-    "hookSecret": ""
+    "viralMechanism": "2-3 zdania",
+    "emotionalTrigger": "1 zdanie",
+    "hookSecret": "1-2 zdania"
   }},
   "variants": [
     {{
       "id": 1,
       "style": "Emocjonalny",
       "styleDesc": "Osobista historia, emocje, storytelling",
-      "hook": "",
-      "cta": "",
-      "script": ""
+      "hook": "max 120 znaków",
+      "cta": "krótkie CTA",
+      "script": "250-350 słów"
     }},
     {{
       "id": 2,
       "style": "Edukacyjny",
       "styleDesc": "Fakty, dane, wiedza krok po kroku",
-      "hook": "",
-      "cta": "",
-      "script": ""
+      "hook": "max 120 znaków",
+      "cta": "krótkie CTA",
+      "script": "250-350 słów"
     }},
     {{
       "id": 3,
       "style": "Prowokacyjny",
       "styleDesc": "Kontrowersja, zaskoczenie, obalenie mitu",
-      "hook": "",
-      "cta": "",
-      "script": ""
+      "hook": "max 120 znaków",
+      "cta": "krótkie CTA",
+      "script": "250-350 słów"
     }}
-  ]
+  ],
+  "platforms": {{
+    "youtube": {{
+      "recommendedVariant": 1,
+      "title": "max 70 znaków",
+      "description": "80-120 słów",
+      "tags": ["tag1","tag2","tag3","tag4","tag5"],
+      "estimatedDuration": "np. 4-6 minut"
+    }},
+    "tiktok": {{
+      "recommendedVariant": 3,
+      "title": "max 50 znaków",
+      "shortScript": "120-170 słów",
+      "hook": "krótki hook",
+      "cta": "krótkie CTA",
+      "tags": ["#tag1","#tag2","#tag3","#tag4","#tag5"]
+    }},
+    "linkedin": {{
+      "recommendedVariant": 2,
+      "title": "krótki nagłówek",
+      "post": "120-180 słów",
+      "hook": "pierwsze zdanie",
+      "cta": "pytanie do dyskusji",
+      "tags": ["#tag1","#tag2","#tag3"]
+    }}
+  }}
 }}
 """
 
@@ -416,41 +470,19 @@ Struktura JSON:
 
         msg = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=1400,
+            max_tokens=1600,
             messages=[{"role": "user", "content": prompt}],
         )
 
         raw = msg.content[0].text if msg.content else ""
-        clean = raw.strip()
-        clean = clean.replace("```json", "").replace("```", "").strip()
+        parsed = try_parse_json_from_text(raw)
 
-        # próba 1: czysty JSON
-        try:
-            return jsonify(json.loads(clean))
-        except Exception:
-            pass
-
-        # próba 2: wytnij od pierwszego { do ostatniego }
-        try:
-            start = clean.find("{")
-            end = clean.rfind("}") + 1
-            if start != -1 and end > start:
-                sliced = clean[start:end]
-                return jsonify(json.loads(sliced))
-        except Exception:
-            pass
-
-        # próba 3: regex
-        try:
-            match = re.search(r"\{.*\}", clean, re.DOTALL)
-            if match:
-                return jsonify(json.loads(match.group(0)))
-        except Exception:
-            pass
+        if parsed is not None:
+            return jsonify(parsed)
 
         return jsonify({
             "error": "Model zwrócił odpowiedź w niepoprawnym formacie JSON",
-            "raw": clean[:2000]
+            "raw": raw[:2000]
         }), 500
 
     except Exception as e:
