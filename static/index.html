@@ -262,10 +262,6 @@ select option{background:#12151f}
     <div class="vsel-grid" id="vtabs"></div>
     <div id="vcont"></div>
   </div>
-  <div class="card">
-    <div class="clabel">📱 Wersje na platformy</div>
-    <div class="plist" id="pgrid"></div>
-  </div>
 </div>
 </div>
 
@@ -278,9 +274,9 @@ select option{background:#12151f}
 <div class="toast" id="toast"></div>
 
 <script>
-const API="";
-let selVideo=null,transcript="",gdata={},activeV=1,curP="youtube";
-const C={1:'var(--red)',2:'var(--blue)',3:'var(--orange)'};
+const API = "";
+let selVideo = null, transcript = "", gdata = {}, activeV = 1, curP = "youtube";
+const C = {1:'var(--red)',2:'var(--blue)',3:'var(--orange)'};
 
 const fN=n=>{n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'mld';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
 const fD=iso=>{if(!iso)return'';const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);if(!m)return'';const h=parseInt(m[1]||0),mn=parseInt(m[2]||0),s=parseInt(m[3]||0);return h?`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${mn}:${String(s).padStart(2,'0')}`};
@@ -291,50 +287,70 @@ const setLoad=(id,on)=>{const b=document.getElementById(id);b.disabled=on;on?b.c
 const setStatus=(id,type,msg)=>{const el=document.getElementById(id);el.style.display='flex';el.className='ts ts-'+type;const ic={ok:'✅',warn:'⚠️',load:'⏳'};el.innerHTML=`<span class="ts-icon">${ic[type]||''}</span><span>${msg}</span>`};
 
 function switchP(p){
-  curP=p;
-  document.getElementById('panel-yt').style.display=p==='youtube'?'block':'none';
-  document.getElementById('panel-tt').style.display=p==='tiktok'?'block':'none';
-  document.getElementById('scriptSection').style.display='none';
+  curP = p;
+  document.getElementById('panel-yt').style.display = p === 'youtube' ? 'block' : 'none';
+  document.getElementById('panel-tt').style.display = p === 'tiktok' ? 'block' : 'none';
+  document.getElementById('scriptSection').style.display = 'none';
   document.getElementById('stickyGen').classList.remove('show');
-  document.getElementById('psw-yt').classList.toggle('active',p==='youtube');
-  document.getElementById('psw-tt').classList.toggle('active',p==='tiktok');
-  selVideo=null;
-  transcript="";
+  document.getElementById('psw-yt').classList.toggle('active', p === 'youtube');
+  document.getElementById('psw-tt').classList.toggle('active', p === 'tiktok');
+  selVideo = null;
+  transcript = "";
+}
+
+async function parseResponse(r){
+  const text = await r.text();
+
+  if (!text || !text.trim()) {
+    if (!r.ok) {
+      throw new Error(`Serwer zwrócił pustą odpowiedź (HTTP ${r.status})`);
+    }
+    return {};
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    if (text.trim().startsWith("<")) {
+      throw new Error(`Serwer zwrócił HTML zamiast JSON (HTTP ${r.status})`);
+    }
+    throw new Error(`Serwer zwrócił nieprawidłowy JSON (HTTP ${r.status})`);
+  }
 }
 
 async function ytSearch(){
-  const q=document.getElementById('ytQ').value.trim();
+  const q = document.getElementById('ytQ').value.trim();
   if(!q){showErr('ytErr','⚠️ Wpisz hasło');return}
+
   hideErr('ytErr');
-  setLoad('ytSearchBtn',true);
-  selVideo=null;
-  transcript="";
-  document.getElementById('genBtn').disabled=true;
-  document.getElementById('ytTsStatus').style.display='none';
-  document.getElementById('ytResults').style.display='none';
-  document.getElementById('scriptSection').style.display='none';
+  setLoad('ytSearchBtn', true);
+  selVideo = null;
+  transcript = "";
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('ytTsStatus').style.display = 'none';
+  document.getElementById('ytResults').style.display = 'none';
+  document.getElementById('scriptSection').style.display = 'none';
   document.getElementById('stickyGen').classList.remove('show');
 
   try{
-    const p=new URLSearchParams({
+    const p = new URLSearchParams({
       q,
-      order:document.getElementById('ytSort').value,
-      lang:document.getElementById('ytLang').value,
-      maxResults:document.getElementById('ytMax').value
+      order: document.getElementById('ytSort').value,
+      lang: document.getElementById('ytLang').value,
+      maxResults: document.getElementById('ytMax').value
     });
 
-    const r=await fetch(`${API}/api/youtube/search?${p}`);
-    const text=await r.text();
-    const d=text ? JSON.parse(text) : {};
+    const r = await fetch(`${API}/api/youtube/search?${p}`);
+    const d = await parseResponse(r);
 
     if(!r.ok) throw new Error(d.error || 'Błąd YouTube');
     if(d.error) throw new Error(d.error);
 
-    renderVids('yt',d.videos || []);
+    renderVids('yt', d.videos || []);
   }catch(e){
-    showErr('ytErr','❌ '+e.message);
+    showErr('ytErr', '❌ ' + e.message);
   }finally{
-    setLoad('ytSearchBtn',false);
+    setLoad('ytSearchBtn', false);
   }
 }
 
@@ -344,74 +360,74 @@ async function ytSelVid(i){
   document.getElementById('ytCard'+i).classList.add('selected');
   document.getElementById('ytSel'+i).textContent='✓ Wybrany';
 
-  selVideo=window._ytVids[i];
-  transcript="";
-  document.getElementById('genBtn').disabled=true;
-  document.getElementById('scriptSection').style.display='none';
+  selVideo = window._ytVids[i];
+  transcript = "";
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('scriptSection').style.display = 'none';
   document.getElementById('stickyGen').classList.remove('show');
   setStatus('ytTsStatus','load','Pobieram transkrypt...');
 
   try{
-    const r=await fetch(`${API}/api/youtube/transcript?video_id=${encodeURIComponent(selVideo.id)}&lang=${encodeURIComponent(document.getElementById('ytLang').value)}`);
-    const text=await r.text();
-    const d=text ? JSON.parse(text) : {};
+    const r = await fetch(`${API}/api/youtube/transcript?video_id=${encodeURIComponent(selVideo.id)}&lang=${encodeURIComponent(document.getElementById('ytLang').value)}`);
+    const d = await parseResponse(r);
 
     if(!r.ok){
       setStatus('ytTsStatus','warn',d.error || 'Brak transkryptu — skrypt powstanie na podstawie opisu filmu.');
     }else if(d.error){
       setStatus('ytTsStatus','warn','Brak transkryptu — skrypt powstanie na podstawie opisu filmu.');
     }else{
-      setStatus('ytTsStatus','ok',`Transkrypt pobrany (${d.is_generated?'auto':'ręczne'}, ${d.length} znaków) ✓`);
-      transcript=d.transcript || "";
+      setStatus('ytTsStatus','ok',`Transkrypt pobrany (${d.length || 0} znaków) ✓`);
+      transcript = d.transcript || "";
     }
   }catch(e){
     setStatus('ytTsStatus','warn','Nie udało się pobrać transkryptu — skrypt powstanie na podstawie opisu filmu.');
   }
 
-  document.getElementById('genBtn').disabled=false;
+  document.getElementById('genBtn').disabled = false;
   document.getElementById('stickyGen').classList.add('show');
 }
 
 async function ttSearch(){
-  const q=document.getElementById('ttQ').value.trim();
+  const q = document.getElementById('ttQ').value.trim();
   if(!q){showErr('ttErr','⚠️ Wpisz hasło lub #tag');return}
 
   hideErr('ttErr');
-  setLoad('ttSearchBtn',true);
-  selVideo=null;
-  transcript="";
-  document.getElementById('genBtn').disabled=true;
-  document.getElementById('ttResults').style.display='none';
-  document.getElementById('scriptSection').style.display='none';
+  setLoad('ttSearchBtn', true);
+  selVideo = null;
+  transcript = "";
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('ttResults').style.display = 'none';
+  document.getElementById('scriptSection').style.display = 'none';
   document.getElementById('stickyGen').classList.remove('show');
 
+  let loadInfo = null;
+
   try{
-    const loadInfo=document.createElement('div');
-    loadInfo.id='apifyLoad';
-    loadInfo.className='ts ts-load';
-    loadInfo.innerHTML='<span class="ts-icon">⏳</span><span>Szukam przez Apify — może potrwać 10–30 sekund...</span>';
+    loadInfo = document.createElement('div');
+    loadInfo.id = 'apifyLoad';
+    loadInfo.className = 'ts ts-load';
+    loadInfo.innerHTML = '<span class="ts-icon">⏳</span><span>Szukam przez Apify — może potrwać 10–30 sekund...</span>';
     document.getElementById('panel-tt').appendChild(loadInfo);
 
-    const p=new URLSearchParams({
+    const p = new URLSearchParams({
       q,
-      maxResults:document.getElementById('ttMax').value
+      maxResults: document.getElementById('ttMax').value
     });
 
-    const r=await fetch(`${API}/api/tiktok/apify-search?${p}`);
-    const text=await r.text();
-    const d=text ? JSON.parse(text) : {};
+    const r = await fetch(`${API}/api/tiktok/apify-search?${p}`);
+    const d = await parseResponse(r);
 
-    document.getElementById('apifyLoad')?.remove();
+    loadInfo?.remove();
 
     if(!r.ok) throw new Error(d.error || 'Błąd TikTok');
     if(d.error) throw new Error(d.error);
 
-    renderVids('tt',d.videos || []);
+    renderVids('tt', d.videos || []);
   }catch(e){
-    document.getElementById('apifyLoad')?.remove();
-    showErr('ttErr','❌ '+e.message);
+    loadInfo?.remove();
+    showErr('ttErr', '❌ ' + e.message);
   }finally{
-    setLoad('ttSearchBtn',false);
+    setLoad('ttSearchBtn', false);
   }
 }
 
@@ -420,35 +436,35 @@ function ttSelVid(i){
   document.querySelectorAll('#ttGrid .vsel').forEach(b=>b.textContent='Wybierz →');
   document.getElementById('ttCard'+i).classList.add('tt-selected');
   document.getElementById('ttSel'+i).textContent='✓ Wybrany';
-  selVideo=window._ttVids[i];
-  transcript="";
+  selVideo = window._ttVids[i];
+  transcript = "";
   setStatus('ttSelStatus','ok','Film wybrany — kliknij przycisk na dole żeby wygenerować skrypt.');
-  document.getElementById('genBtn').disabled=false;
+  document.getElementById('genBtn').disabled = false;
   document.getElementById('stickyGen').classList.add('show');
-  document.getElementById('scriptSection').style.display='none';
+  document.getElementById('scriptSection').style.display = 'none';
 }
 
-function renderVids(source,vids){
-  const isYT=source==='yt';
-  const gridId=isYT?'ytGrid':'ttGrid';
-  const metaId=isYT?'ytMeta':'ttMeta';
-  const resId=isYT?'ytResults':'ttResults';
-  const storeKey=isYT?'_ytVids':'_ttVids';
-  const selFn=isYT?'ytSelVid':'ttSelVid';
-  const cardPfx=isYT?'ytCard':'ttCard';
-  const selPfx=isYT?'ytSel':'ttSel';
-  const badgeCls=isYT?'vbadge-yt':'vbadge-tt';
-  const badgeTxt=isYT?'▶️':'🎵';
+function renderVids(source, vids){
+  const isYT = source === 'yt';
+  const gridId = isYT ? 'ytGrid' : 'ttGrid';
+  const metaId = isYT ? 'ytMeta' : 'ttMeta';
+  const resId = isYT ? 'ytResults' : 'ttResults';
+  const storeKey = isYT ? '_ytVids' : '_ttVids';
+  const selFn = isYT ? 'ytSelVid' : 'ttSelVid';
+  const cardPfx = isYT ? 'ytCard' : 'ttCard';
+  const selPfx = isYT ? 'ytSel' : 'ttSel';
+  const badgeCls = isYT ? 'vbadge-yt' : 'vbadge-tt';
+  const badgeTxt = isYT ? '▶️' : '🎵';
 
-  window[storeKey]=vids;
-  document.getElementById(metaId).textContent=vids.length+' filmów';
+  window[storeKey] = vids;
+  document.getElementById(metaId).textContent = vids.length + ' filmów';
 
-  document.getElementById(gridId).innerHTML=vids.map((v,i)=>`
+  document.getElementById(gridId).innerHTML = vids.map((v,i)=>`
     <div class="vcard" id="${cardPfx}${i}" onclick="${selFn}(${i})">
       <div class="vthumb">
         <img src="${v.thumbnail||''}" loading="lazy" onerror="this.style.display='none'">
-        ${v.duration&&String(v.duration).startsWith('PT')?`<span class="vdur">${fD(v.duration)}</span>`:''}
-        ${parseInt(v.views)>50000?`<span class="vbadge ${badgeCls}">${badgeTxt} ${fN(v.views)}</span>`:''}
+        ${v.duration && String(v.duration).startsWith('PT') ? `<span class="vdur">${fD(v.duration)}</span>` : ''}
+        ${parseInt(v.views)>50000 ? `<span class="vbadge ${badgeCls}">${badgeTxt} ${fN(v.views)}</span>` : ''}
       </div>
       <div class="vbody">
         <div class="vtitle">${v.title||'Brak tytułu'}</div>
@@ -456,13 +472,13 @@ function renderVids(source,vids){
         <div class="vstats">
           <span class="vstat">👁 ${fN(v.views)}</span>
           <span class="vstat">❤️ ${fN(v.likes)}</span>
-          ${v.published?`<span class="vstat">📅 ${v.published}</span>`:''}
+          ${v.published ? `<span class="vstat">📅 ${v.published}</span>` : ''}
         </div>
       </div>
       <button class="vsel" id="${selPfx}${i}">Wybierz →</button>
     </div>`).join('');
 
-  document.getElementById(resId).style.display='block';
+  document.getElementById(resId).style.display = 'block';
 }
 
 async function generateScript(){
@@ -494,14 +510,7 @@ async function generateScript(){
       })
     });
 
-    const text = await r.text();
-    let d = {};
-
-    try{
-      d = text ? JSON.parse(text) : {};
-    }catch{
-      throw new Error('Serwer zwrócił nieprawidłową odpowiedź. Sprawdź logi Render.');
-    }
+    const d = await parseResponse(r);
 
     if(!r.ok) throw new Error(d.error || 'Błąd generowania');
     if(d.error) throw new Error(d.error);
@@ -526,56 +535,35 @@ async function generateScript(){
 }
 
 function renderAll(){
-  const an=gdata.analysis||{};
-  document.getElementById('agrid').innerHTML=
+  const an = gdata.analysis || {};
+  document.getElementById('agrid').innerHTML =
     `<div class="aitem"><div class="aitem-l">Mechanizm wiralny</div><div class="aitem-t">${an.viralMechanism||'-'}</div></div>
      <div class="aitem"><div class="aitem-l">Trigger emocjonalny</div><div class="aitem-t">${an.emotionalTrigger||'-'}</div></div>
      <div class="aitem"><div class="aitem-l">Sekret pierwszych 3 sek.</div><div class="aitem-t">${an.hookSecret||'-'}</div></div>`;
 
-  const vs=gdata.variants||[];
-  document.getElementById('vtabs').innerHTML=vs.map(v=>`
+  const vs = gdata.variants || [];
+  document.getElementById('vtabs').innerHTML = vs.map(v=>`
     <button class="vtab ${v.id===1?'active':''}" id="vt${v.id}" onclick="showV(${v.id})" style="${v.id===1?'border-color:'+C[1]+';':''}">
-      <span class="vtn" style="color:${C[v.id]}">${v.id}. ${v.style}</span>
-      <span class="vtd">${v.styleDesc}</span>
+      <span class="vtn" style="color:${C[v.id]}">${v.id}. ${v.style||''}</span>
+      <span class="vtd">${v.styleDesc||''}</span>
     </button>`).join('');
   showV(1);
-
-  const pl=gdata.platforms||{};
-  const pls=[{k:'youtube',i:'▶️',n:'YouTube'},{k:'tiktok',i:'🎵',n:'TikTok/Reels'},{k:'linkedin',i:'💼',n:'LinkedIn'}];
-  document.getElementById('pgrid').innerHTML=pls.map(p=>{
-    const d=pl[p.k];if(!d)return'';
-    const recV=(gdata.variants||[]).find(v=>v.id===d.recommendedVariant);
-    const scr=p.k==='tiktok'?d.shortScript:p.k==='linkedin'?d.post:'';
-    const tags=(d.tags||[]).map(t=>`<span class="tag hot">${t}</span>`).join('');
-    return`<div class="pcard">
-      <div class="pch"><div class="pchn">${p.i} ${p.n}</div>${recV?`<span class="rec">Wariant ${recV.id}</span>`:''}</div>
-      <div class="pcb">
-        <div class="pct">${d.title||''}</div>
-        ${d.hook?`<div class="phook">${d.hook}</div>`:''}
-        ${scr?`<div class="pprev">${scr}</div>`:''}
-        ${d.cta?`<div class="pcta">${d.cta}</div>`:''}
-        ${d.estimatedDuration?`<div style="font-size:11px;color:var(--muted)">⏱ ${d.estimatedDuration}</div>`:''}
-        <div class="ptags">${tags}</div>
-        <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyPl('${p.k}')">📋 Kopiuj</button>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 function showV(id){
-  activeV=id;
+  activeV = id;
   document.querySelectorAll('.vtab').forEach(t=>{t.classList.remove('active');t.style.borderColor='';t.style.background='';});
-  const tab=document.getElementById('vt'+id);
+  const tab = document.getElementById('vt'+id);
   if(tab){tab.classList.add('active');tab.style.borderColor=C[id];tab.style.background='rgba(255,58,58,.08)';}
-  const v=(gdata.variants||[]).find(v=>v.id===id);if(!v)return;
-  const sh=(v.script||'')
+  const v = (gdata.variants || []).find(v=>v.id===id); if(!v) return;
+  const sh = (v.script || '')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/\[(.*?)\]/g,'<span style="color:var(--blue);font-size:11px;background:rgba(74,158,255,.1);padding:1px 5px;border-radius:4px">[$1]</span>');
-  document.getElementById('vcont').innerHTML=`
+  document.getElementById('vcont').innerHTML = `
     <div class="vcwrap">
       <div class="vch">
-        <div><div class="vchs" style="color:${C[id]}">${v.id}. ${v.style}</div><div class="vchd">${v.styleDesc}</div></div>
+        <div><div class="vchs" style="color:${C[id]}">${v.id}. ${v.style||''}</div><div class="vchd">${v.styleDesc||''}</div></div>
         <button class="btn btn-ghost btn-sm" onclick="copyV(${id})">📋</button>
       </div>
       <div class="vcb">
@@ -587,31 +575,19 @@ function showV(id){
 }
 
 function copyV(id){
-  const v=(gdata.variants||[]).find(v=>v.id===id);if(!v)return;
+  const v = (gdata.variants || []).find(v=>v.id===id); if(!v) return;
   navigator.clipboard.writeText([
-    `=== WARIANT ${v.id}: ${v.style.toUpperCase()} ===`,
+    `=== WARIANT ${v.id}: ${(v.style||'').toUpperCase()} ===`,
     '',
     '🎣 HOOK:',
-    v.hook,
+    v.hook || '',
     '',
     '📜 SKRYPT:',
-    v.script,
+    v.script || '',
     '',
     '📣 CTA:',
-    v.cta
+    v.cta || ''
   ].join('\n')).then(()=>toast('✓ Skopiowano wariant '+id+'!'));
-}
-
-function copyPl(k){
-  const d=(gdata.platforms||{})[k];if(!d)return;
-  const l=[`=== ${k.toUpperCase()} ===`,''];
-  if(d.title)l.push('TYTUŁ:',d.title,'');
-  if(d.hook)l.push('🎣 HOOK:',d.hook,'');
-  const s=d.shortScript||d.post||'';
-  if(s)l.push('TREŚĆ:',s,'');
-  if(d.cta)l.push('📣 CTA:',d.cta,'');
-  if(d.tags)l.push('TAGI:',(d.tags||[]).join(' '));
-  navigator.clipboard.writeText(l.join('\n')).then(()=>toast('✓ Skopiowano!'));
 }
 </script>
 </body>
