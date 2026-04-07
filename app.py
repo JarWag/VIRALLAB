@@ -23,9 +23,9 @@ CORS(app)
 
 # Klucze API
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY", "")
-RAPIDAPI_KEY      = os.environ.get("RAPIDAPI_KEY", "")
-APIFY_TOKEN       = os.environ.get("APIFY_TOKEN", "")
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY", "")
+RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY", "")
+APIFY_TOKEN = os.environ.get("APIFY_TOKEN", "")
 
 
 @app.route("/")
@@ -42,10 +42,10 @@ def api_test():
 @app.route("/api/youtube/search")
 def youtube_search():
     yt_key = YOUTUBE_API_KEY
-    query  = request.args.get("q", "")
-    order  = request.args.get("order", "viewCount")
-    lang   = request.args.get("lang", "en")
-    max_r  = request.args.get("maxResults", "9")
+    query = request.args.get("q", "")
+    order = request.args.get("order", "viewCount")
+    lang = request.args.get("lang", "en")
+    max_r = request.args.get("maxResults", "9")
 
     if not yt_key:
         return jsonify({"error": "Brak klucza YouTube API w Render (Environment Variables)"}), 400
@@ -493,9 +493,11 @@ ZASADY ADAPTACJI:
 WARIANTY:
 - Wariant 1 EMOCJONALNY: osobista historia, storytelling, emocje
 - Wariant 2 EDUKACYJNY: fakty, dane, kroki, konkretna wiedza
-- Wariant 3 PROWOKACYJNY: kontrowersja, obalenie mitu, zaskoczenie
+- Wariant 3 PROWOKACYJNY: kontrowersja, zaskoczenie, obalenie mitu
 
-Odpowiedz TYLKO JSON bez markdown:
+Odpowiedz WYŁĄCZNIE poprawnym JSON-em.
+Nie dodawaj żadnego wstępu, komentarza, wyjaśnień, markdownu, bloków ``` ani tekstu przed lub po JSON.
+Zwróć tylko jeden obiekt JSON:
 {{
   "analysis": {{
     "viralMechanism": "Co sprawia że oryginał działa (2-3 zdania)",
@@ -556,7 +558,7 @@ Odpowiedz TYLKO JSON bez markdown:
 }}"""
 
         client = anthropic.Anthropic(api_key=ant_key)
-                message = client.messages.create(
+        message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=2200,
             messages=[{"role": "user", "content": prompt}]
@@ -587,6 +589,8 @@ Odpowiedz TYLKO JSON bez markdown:
     except Exception as e:
         print("GENERATE ERROR:", str(e))
         return jsonify({"error": f"Błąd generowania: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
     print("\n🚀 ViralLab uruchomiony lokalnie")
     print(f" YouTube API: {'✓' if YOUTUBE_API_KEY else '✗ BRAK'}")
