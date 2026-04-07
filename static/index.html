@@ -217,7 +217,7 @@ select option{background:#12151f}
 
   <div id="ytResults" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">📊 Wyniki</div>
+      <div id="ytResultsTitle" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">📊 Wyniki</div>
       <div style="font-size:12px;color:var(--muted2)" id="ytMeta"></div>
     </div>
     <div class="vgrid" id="ytGrid"></div>
@@ -296,7 +296,7 @@ select option{background:#12151f}
 
   <div id="ttResults" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">🎵 Wyniki TikTok</div>
+      <div id="ttResultsTitle" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">🎵 Wyniki TikTok</div>
       <div style="font-size:12px;color:var(--muted2)" id="ttMeta"></div>
     </div>
     <div class="vgrid" id="ttGrid"></div>
@@ -307,18 +307,18 @@ select option{background:#12151f}
 
 <div id="scriptSection">
   <div class="card">
-    <div class="clabel">🔬 Analiza wiralności</div>
+    <div class="clabel" id="analysisTitle">🔬 Analiza wiralności</div>
     <div class="alist" id="agrid"></div>
   </div>
 
   <div class="card">
-    <div class="clabel">📜 3 warianty skryptu</div>
+    <div class="clabel" id="variantsTitle">📜 3 warianty skryptu</div>
     <div class="vsel-grid" id="vtabs"></div>
     <div id="vcont"></div>
   </div>
 
   <div class="card">
-    <div class="clabel">📱 Wersje na platformy</div>
+    <div class="clabel" id="platformsTitle">📱 Wersje na platformy</div>
     <div class="plist" id="pgrid"></div>
   </div>
 </div>
@@ -337,6 +337,152 @@ const API = "";
 let selVideo = null, transcript = "", gdata = {}, activeV = 1, curP = "youtube";
 const C = {1:'var(--red)',2:'var(--blue)',3:'var(--orange)'};
 
+const UI = {
+  pl: {
+    viralAnalysis: '🔬 Analiza wiralności',
+    scriptVariants: '📜 3 warianty skryptu',
+    platformVersions: '📱 Wersje na platformy',
+    viralMechanism: 'Mechanizm wiralny',
+    emotionalTrigger: 'Trigger emocjonalny',
+    hookSecret: 'Sekret pierwszych 3 sek.',
+    variant: 'Wariant',
+    hook: '🎣 Hook',
+    script: '📜 Skrypt',
+    cta: '📣 Call to Action',
+    copy: '📋 Kopiuj',
+    copied: '✓ Skopiowano!',
+    copiedVariant: '✓ Skopiowano wariant',
+    title: 'TYTUŁ:',
+    content: 'TREŚĆ:',
+    tags: 'TAGI:',
+    estimatedDuration: '⏱ Czas:',
+    youtubeResults: '📊 Wyniki',
+    tiktokResults: '🎵 Wyniki TikTok',
+    films: 'filmów'
+  },
+  en: {
+    viralAnalysis: '🔬 Viral analysis',
+    scriptVariants: '📜 3 script variations',
+    platformVersions: '📱 Platform versions',
+    viralMechanism: 'Viral mechanism',
+    emotionalTrigger: 'Emotional trigger',
+    hookSecret: 'First 3 seconds secret',
+    variant: 'Variant',
+    hook: '🎣 Hook',
+    script: '📜 Script',
+    cta: '📣 Call to Action',
+    copy: '📋 Copy',
+    copied: '✓ Copied!',
+    copiedVariant: '✓ Copied variant',
+    title: 'TITLE:',
+    content: 'CONTENT:',
+    tags: 'TAGS:',
+    estimatedDuration: '⏱ Duration:',
+    youtubeResults: '📊 Results',
+    tiktokResults: '🎵 TikTok results',
+    films: 'videos'
+  },
+  de: {
+    viralAnalysis: '🔬 Viralitätsanalyse',
+    scriptVariants: '📜 3 Skriptvarianten',
+    platformVersions: '📱 Plattformversionen',
+    viralMechanism: 'Viraler Mechanismus',
+    emotionalTrigger: 'Emotionaler Trigger',
+    hookSecret: 'Geheimnis der ersten 3 Sekunden',
+    variant: 'Variante',
+    hook: '🎣 Hook',
+    script: '📜 Skript',
+    cta: '📣 Call to Action',
+    copy: '📋 Kopieren',
+    copied: '✓ Kopiert!',
+    copiedVariant: '✓ Variante kopiert',
+    title: 'TITEL:',
+    content: 'INHALT:',
+    tags: 'TAGS:',
+    estimatedDuration: '⏱ Dauer:',
+    youtubeResults: '📊 Ergebnisse',
+    tiktokResults: '🎵 TikTok-Ergebnisse',
+    films: 'Videos'
+  },
+  es: {
+    viralAnalysis: '🔬 Análisis de viralidad',
+    scriptVariants: '📜 3 variantes del guion',
+    platformVersions: '📱 Versiones para plataformas',
+    viralMechanism: 'Mecanismo viral',
+    emotionalTrigger: 'Desencadenante emocional',
+    hookSecret: 'Secreto de los primeros 3 segundos',
+    variant: 'Variante',
+    hook: '🎣 Gancho',
+    script: '📜 Guion',
+    cta: '📣 Llamado a la acción',
+    copy: '📋 Copiar',
+    copied: '✓ ¡Copiado!',
+    copiedVariant: '✓ Variante copiada',
+    title: 'TÍTULO:',
+    content: 'CONTENIDO:',
+    tags: 'ETIQUETAS:',
+    estimatedDuration: '⏱ Duración:',
+    youtubeResults: '📊 Resultados',
+    tiktokResults: '🎵 Resultados de TikTok',
+    films: 'videos'
+  },
+  fr: {
+    viralAnalysis: '🔬 Analyse de viralité',
+    scriptVariants: '📜 3 variantes de script',
+    platformVersions: '📱 Versions par plateforme',
+    viralMechanism: 'Mécanisme viral',
+    emotionalTrigger: 'Déclencheur émotionnel',
+    hookSecret: 'Secret des 3 premières secondes',
+    variant: 'Variante',
+    hook: '🎣 Accroche',
+    script: '📜 Script',
+    cta: '📣 Appel à l’action',
+    copy: '📋 Copier',
+    copied: '✓ Copié !',
+    copiedVariant: '✓ Variante copiée',
+    title: 'TITRE :',
+    content: 'CONTENU :',
+    tags: 'TAGS :',
+    estimatedDuration: '⏱ Durée :',
+    youtubeResults: '📊 Résultats',
+    tiktokResults: '🎵 Résultats TikTok',
+    films: 'vidéos'
+  },
+  it: {
+    viralAnalysis: '🔬 Analisi della viralità',
+    scriptVariants: '📜 3 varianti di script',
+    platformVersions: '📱 Versioni per piattaforma',
+    viralMechanism: 'Meccanismo virale',
+    emotionalTrigger: 'Trigger emotivo',
+    hookSecret: 'Segreto dei primi 3 secondi',
+    variant: 'Variante',
+    hook: '🎣 Hook',
+    script: '📜 Script',
+    cta: '📣 Call to Action',
+    copy: '📋 Copia',
+    copied: '✓ Copiato!',
+    copiedVariant: '✓ Variante copiata',
+    title: 'TITOLO:',
+    content: 'CONTENUTO:',
+    tags: 'TAG:',
+    estimatedDuration: '⏱ Durata:',
+    youtubeResults: '📊 Risultati',
+    tiktokResults: '🎵 Risultati TikTok',
+    films: 'video'
+  }
+};
+
+function getOutputLang(){
+  return curP === 'youtube'
+    ? document.getElementById('ytOutputLang').value
+    : document.getElementById('ttOutputLang').value;
+}
+
+function t(key){
+  const lang = getOutputLang();
+  return (UI[lang] && UI[lang][key]) || UI.pl[key] || key;
+}
+
 const fN=n=>{n=parseInt(n)||0;if(n>=1e9)return(n/1e9).toFixed(1)+'mld';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
 const fD=iso=>{if(!iso)return'';const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);if(!m)return'';const h=parseInt(m[1]||0),mn=parseInt(m[2]||0),s=parseInt(m[3]||0);return h?`${h}:${String(mn).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${mn}:${String(s).padStart(2,'0')}`};
 const showErr=(id,msg)=>{const e=document.getElementById(id);e.textContent=msg;e.style.display='block'};
@@ -344,6 +490,20 @@ const hideErr=id=>document.getElementById(id).style.display='none';
 const toast=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)};
 const setLoad=(id,on)=>{const b=document.getElementById(id);b.disabled=on;on?b.classList.add('loading'):b.classList.remove('loading')};
 const setStatus=(id,type,msg)=>{const el=document.getElementById(id);el.style.display='flex';el.className='ts ts-'+type;const ic={ok:'✅',warn:'⚠️',load:'⏳'};el.innerHTML=`<span class="ts-icon">${ic[type]||''}</span><span>${msg}</span>`};
+
+function refreshStaticUiTexts(){
+  const ytTitle = document.getElementById('ytResultsTitle');
+  const ttTitle = document.getElementById('ttResultsTitle');
+  const analysisTitle = document.getElementById('analysisTitle');
+  const variantsTitle = document.getElementById('variantsTitle');
+  const platformsTitle = document.getElementById('platformsTitle');
+
+  if (ytTitle) ytTitle.textContent = t('youtubeResults');
+  if (ttTitle) ttTitle.textContent = t('tiktokResults');
+  if (analysisTitle) analysisTitle.textContent = t('viralAnalysis');
+  if (variantsTitle) variantsTitle.textContent = t('scriptVariants');
+  if (platformsTitle) platformsTitle.textContent = t('platformVersions');
+}
 
 function switchP(p){
   curP = p;
@@ -355,6 +515,7 @@ function switchP(p){
   document.getElementById('psw-tt').classList.toggle('active', p === 'tiktok');
   selVideo = null;
   transcript = "";
+  refreshStaticUiTexts();
 }
 
 async function parseResponse(r){
@@ -514,7 +675,7 @@ function renderVids(source, vids){
   const badgeTxt = isYT ? '▶️' : '🎵';
 
   window[storeKey] = vids;
-  document.getElementById(metaId).textContent = vids.length + ' filmów';
+  document.getElementById(metaId).textContent = vids.length + ' ' + t('films');
 
   document.getElementById(gridId).innerHTML = vids.map((v,i)=>`
     <div class="vcard" id="${cardPfx}${i}" onclick="${selFn}(${i})">
@@ -535,6 +696,7 @@ function renderVids(source, vids){
       <button class="vsel" id="${selPfx}${i}">Wybierz →</button>
     </div>`).join('');
 
+  refreshStaticUiTexts();
   document.getElementById(resId).style.display = 'block';
 }
 
@@ -597,11 +759,13 @@ async function generateScript(){
 }
 
 function renderAll(){
+  refreshStaticUiTexts();
+
   const an = gdata.analysis || {};
   document.getElementById('agrid').innerHTML =
-    `<div class="aitem"><div class="aitem-l">Mechanizm wiralny</div><div class="aitem-t">${an.viralMechanism||'-'}</div></div>
-     <div class="aitem"><div class="aitem-l">Trigger emocjonalny</div><div class="aitem-t">${an.emotionalTrigger||'-'}</div></div>
-     <div class="aitem"><div class="aitem-l">Sekret pierwszych 3 sek.</div><div class="aitem-t">${an.hookSecret||'-'}</div></div>`;
+    `<div class="aitem"><div class="aitem-l">${t('viralMechanism')}</div><div class="aitem-t">${an.viralMechanism||'-'}</div></div>
+     <div class="aitem"><div class="aitem-l">${t('emotionalTrigger')}</div><div class="aitem-t">${an.emotionalTrigger||'-'}</div></div>
+     <div class="aitem"><div class="aitem-l">${t('hookSecret')}</div><div class="aitem-t">${an.hookSecret||'-'}</div></div>`;
 
   const vs = gdata.variants || [];
   document.getElementById('vtabs').innerHTML = vs.map(v=>`
@@ -617,17 +781,17 @@ function renderAll(){
     const d = pl[p.k]; if(!d) return '';
     const recV = (gdata.variants || []).find(v=>v.id===d.recommendedVariant);
     const scr = p.k==='tiktok' ? d.shortScript : p.k==='linkedin' ? d.post : '';
-    const tags = (d.tags || []).map(t=>`<span class="tag hot">${t}</span>`).join('');
+    const tags = (d.tags || []).map(tg=>`<span class="tag hot">${tg}</span>`).join('');
     return `<div class="pcard">
-      <div class="pch"><div class="pchn">${p.i} ${p.n}</div>${recV?`<span class="rec">Wariant ${recV.id}</span>`:''}</div>
+      <div class="pch"><div class="pchn">${p.i} ${p.n}</div>${recV?`<span class="rec">${t('variant')} ${recV.id}</span>`:''}</div>
       <div class="pcb">
         <div class="pct">${d.title||''}</div>
         ${d.hook?`<div class="phook">${d.hook}</div>`:''}
         ${scr?`<div class="pprev">${scr}</div>`:''}
         ${d.cta?`<div class="pcta">${d.cta}</div>`:''}
-        ${d.estimatedDuration?`<div style="font-size:11px;color:var(--muted)">⏱ ${d.estimatedDuration}</div>`:''}
+        ${d.estimatedDuration?`<div style="font-size:11px;color:var(--muted)">${t('estimatedDuration')} ${d.estimatedDuration}</div>`:''}
         <div class="ptags">${tags}</div>
-        <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyPl('${p.k}')">📋 Kopiuj</button>
+        <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyPl('${p.k}')">${t('copy')}</button>
       </div>
     </div>`;
   }).join('');
@@ -647,12 +811,12 @@ function showV(id){
     <div class="vcwrap">
       <div class="vch">
         <div><div class="vchs" style="color:${C[id]}">${v.id}. ${v.style||''}</div><div class="vchd">${v.styleDesc||''}</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="copyV(${id})">📋</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyV(${id})">${t('copy')}</button>
       </div>
       <div class="vcb">
-        <div><div class="vcs-l">🎣 Hook</div><div class="hook-box">${v.hook||''}</div></div>
-        <div><div class="vcs-l">📜 Skrypt</div><div class="script-text">${sh}</div></div>
-        <div><div class="vcs-l">📣 Call to Action</div><div class="cta-box">${v.cta||''}</div></div>
+        <div><div class="vcs-l">${t('hook')}</div><div class="hook-box">${v.hook||''}</div></div>
+        <div><div class="vcs-l">${t('script')}</div><div class="script-text">${sh}</div></div>
+        <div><div class="vcs-l">${t('cta')}</div><div class="cta-box">${v.cta||''}</div></div>
       </div>
     </div>`;
 }
@@ -660,30 +824,42 @@ function showV(id){
 function copyV(id){
   const v = (gdata.variants || []).find(v=>v.id===id); if(!v) return;
   navigator.clipboard.writeText([
-    `=== WARIANT ${v.id}: ${(v.style||'').toUpperCase()} ===`,
+    `=== ${t('variant').toUpperCase()} ${v.id}: ${(v.style||'').toUpperCase()} ===`,
     '',
-    '🎣 HOOK:',
+    t('hook'),
     v.hook || '',
     '',
-    '📜 SKRYPT:',
+    t('script'),
     v.script || '',
     '',
-    '📣 CTA:',
+    t('cta'),
     v.cta || ''
-  ].join('\n')).then(()=>toast('✓ Skopiowano wariant '+id+'!'));
+  ].join('\n')).then(()=>toast(`${t('copiedVariant')} ${id}!`));
 }
 
 function copyPl(k){
   const d = (gdata.platforms || {})[k]; if(!d) return;
   const l = [`=== ${k.toUpperCase()} ===`,''];
-  if(d.title) l.push('TYTUŁ:', d.title, '');
-  if(d.hook) l.push('🎣 HOOK:', d.hook, '');
+  if(d.title) l.push(t('title'), d.title, '');
+  if(d.hook) l.push(t('hook'), d.hook, '');
   const s = d.shortScript || d.post || '';
-  if(s) l.push('TREŚĆ:', s, '');
-  if(d.cta) l.push('📣 CTA:', d.cta, '');
-  if(d.tags) l.push('TAGI:', (d.tags || []).join(' '));
-  navigator.clipboard.writeText(l.join('\n')).then(()=>toast('✓ Skopiowano!'));
+  if(s) l.push(t('content'), s, '');
+  if(d.cta) l.push(t('cta'), d.cta, '');
+  if(d.tags) l.push(t('tags'), (d.tags || []).join(' '));
+  navigator.clipboard.writeText(l.join('\n')).then(()=>toast(t('copied')));
 }
+
+document.getElementById('ytOutputLang').addEventListener('change', () => {
+  refreshStaticUiTexts();
+  if (gdata && Object.keys(gdata).length) renderAll();
+});
+
+document.getElementById('ttOutputLang').addEventListener('change', () => {
+  refreshStaticUiTexts();
+  if (gdata && Object.keys(gdata).length) renderAll();
+});
+
+refreshStaticUiTexts();
 </script>
 </body>
 </html>
